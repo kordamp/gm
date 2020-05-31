@@ -6,3 +6,5 @@ image:http://img.shields.io/badge/license-ASL2-blue.svg["ASL2 Licensed", link="h
 image:https://img.shields.io/badge/donations-Patreon-orange.svg[link="https://www.patreon.com/user?u=6609318"]
 
 ---
+
+Gum is a link:https://gradle.org[Gradle]/link:https:maven.apache.org[Maven] wrapper written in link:https://golang.org/[Go].
