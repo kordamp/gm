@@ -1,20 +1,67 @@
 builds:
-- env:
-  - CGO_ENABLED=0
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: 386
+    main: ./gm.go
 archives:
-- replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-    386: i386
-    amd64: x86_64
+  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
+  algorithm: sha512
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-    - '^docs:'
-    - '^test:'
+      - "^docs:"
+      - "^test:"
+      - Merge pull request
+      - Merge branch
+signs:
+  artifacts: all
+  args:
+    [
+      "--batch",
+      "-u",
+      "{{ .Env.GPG_FINGERPRINT }}",
+      "--output",
+      "${signature}",
+      "--detach-sign",
+      "${artifact}",
+    ]
+snapcrafts:
+  name: gum
+  grade: stable
+  confinement: strict
+  publish: true
+brews:
+  - name: gum
+    goarm: 6
+    github:
+      owner: kordamp
+      name: gum-homebrew-tap
+    folder: Formula
+    homepage: "https://github.com/kordamp/gm"
+    description: "Gum is a Gradle/Maven wrapper written in Go"
+    skip_upload: true
