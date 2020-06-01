@@ -25,6 +25,8 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+      - goos: darwin
+        format: zip
 checksum:
   name_template: "checksums.txt"
   algorithm: sha512
@@ -46,6 +48,26 @@ snapcrafts:
     grade: stable
     confinement: strict
     publish: true
+    summary: "Gum is a Gradle/Maven wrapper written in Go"
+    description: |
+      Gum is a Gradle/Maven wrapper written in Go, inspired in https://github.com/dougborg/gdub and https://github.com/srs/gw.
+      Gum automatically detects if the project is Gradle or Maven based and runs the appropriate command. However in the case
+      that Gum guesses wrong you can force a specific build tool to be used.
+
+      **Usage**
+
+      Gum supports the following flags
+
+      * **-gg** force Gradle build
+      * **-gh** displays help information
+      * **-gm** force Maven build
+      * **-gn** executes nearest build file
+      * **-gq** run gm in quiet mode
+      * **-gv** displays version information
+
+      Gum will execute the build based on the root build file unless **-gn** is specified, in which case the nearest build file
+      will be selected. If a specific build file is given (**-b**, **--build-file** for Gradle; **-f**, **--file** for Maven)
+      then that file will be used instead.
 brews:
   - name: gum
     goarm: 6
@@ -55,4 +77,4 @@ brews:
     folder: Formula
     homepage: "https://github.com/kordamp/gm"
     description: "Gum is a Gradle/Maven wrapper written in Go"
-    skip_upload: true
+    skip_upload: false
