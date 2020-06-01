@@ -39,22 +39,13 @@ changelog:
       - Merge pull request
       - Merge branch
 signs:
-  artifacts: all
-  args:
-    [
-      "--batch",
-      "-u",
-      "{{ .Env.GPG_FINGERPRINT }}",
-      "--output",
-      "${signature}",
-      "--detach-sign",
-      "${artifact}",
-    ]
+  - artifacts: all
+    args: ["--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}",  "--detach-sign",  "${artifact}"]
 snapcrafts:
-  name: gum
-  grade: stable
-  confinement: strict
-  publish: true
+  - name: gum
+    grade: stable
+    confinement: strict
+    publish: true
 brews:
   - name: gum
     goarm: 6
