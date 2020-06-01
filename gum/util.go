@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func IsFlagSet(f string, args []string) (bool, []string) {
+func GrabFlag(f string, args []string) (bool, []string) {
 	if len(args) == 0 {
 		// no args to be checked
 		return false, args

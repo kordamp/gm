@@ -1,8 +1,10 @@
-package gum
+package main
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/kordamp/gm/gum"
 )
 
 const (
@@ -11,11 +13,11 @@ const (
 
 func main() {
 	var args []string
-	gradleBuild, args := IsFlagSet("-gg", os.Args[1:])
-	mavenBuild, args := IsFlagSet("-gm", args)
-	quiet, args := IsFlagSet("-gq", args)
-	version, args := IsFlagSet("-gv", args)
-	help, args := IsFlagSet("-gh", args)
+	gradleBuild, args := gum.GrabFlag("-gg", os.Args[1:])
+	mavenBuild, args := gum.GrabFlag("-gm", args)
+	quiet, args := gum.GrabFlag("-gq", args)
+	version, args := gum.GrabFlag("-gv", args)
+	help, args := gum.GrabFlag("-gh", args)
 
 	if version {
 		fmt.Println("gm " + VERSION)
@@ -24,11 +26,12 @@ func main() {
 
 	if help {
 		fmt.Println("Usage of gm:")
-		fmt.Println("\t-gg\tforce Gradle build")
-		fmt.Println("\t-gh\tdisplays help information")
-		fmt.Println("\t-gm\tforce Maven build")
-		fmt.Println("\t-gq\trun gm in quiet mode")
-		fmt.Println("\t-gv\tdisplays version information")
+		fmt.Println("  -gg\tforce Gradle build")
+		fmt.Println("  -gh\tdisplays help information")
+		fmt.Println("  -gm\tforce Maven build")
+		fmt.Println("  -gn\texecutes nearest build file")
+		fmt.Println("  -gq\trun gm in quiet mode")
+		fmt.Println("  -gv\tdisplays version information")
 		os.Exit(-1)
 	}
 
@@ -37,11 +40,11 @@ func main() {
 		os.Exit(-1)
 	}
 
-	var cmd Command
+	var cmd gum.Command
 	if gradleBuild {
-		cmd = FindGradle(quiet, true, args)
+		cmd = gum.FindGradle(quiet, true, args)
 	} else if mavenBuild {
-		cmd = FindMaven(quiet, true, args)
+		cmd = gum.FindMaven(quiet, true, args)
 	} else {
 		cmd = findGradleOrMaven(quiet, args)
 	}
@@ -50,20 +53,18 @@ func main() {
 }
 
 // Attempts to execute gradlew/gradle first then mvnw/mvn
-func findGradleOrMaven(quiet bool, args []string) Command {
-	cmd := FindGradle(quiet, false, args)
+func findGradleOrMaven(quiet bool, args []string) gum.Command {
+	cmd := gum.FindGradle(quiet, false, args)
 
-	if !cmd.empty() {
+	if !cmd.Empty() {
 		return cmd
 	}
 
-	cmd = FindMaven(quiet, false, args)
+	cmd = gum.FindMaven(quiet, false, args)
 
-	if !cmd.empty() {
+	if !cmd.Empty() {
 		return cmd
 	}
 
-	fmt.Println("Did not find a Gradle nor Maven project.")
-	os.Exit(-1)
-	return EmptyCmd()
+	return gum.EmptyCommand{}
 }

@@ -4,14 +4,55 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
-func mvnCmd(executable string, buildFile string, args []string) Command {
-	cmd := Command{Executable: executable}
-	cmd.BuildFile = buildFile
-	cmd.Args = args
-	return cmd
+type MavenCommand struct {
+	quiet             bool
+	executable        string
+	args              []string
+	buildFile         string
+	explicitBuildFile string
+	rootBuildFile     string
+}
+
+func (c MavenCommand) Execute() {
+	args := make([]string, 0)
+
+	banner := make([]string, 0)
+	banner = append(banner, "Using maven at '"+c.executable+"'")
+	nearest, nargs := GrabFlag("-gn", c.args)
+
+	if len(c.explicitBuildFile) > 0 {
+		banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
+	} else if nearest && len(c.buildFile) > 0 {
+		args = append(args, "-f")
+		args = append(args, c.buildFile)
+		banner = append(banner, "to run buildFile '"+c.buildFile+"':")
+	} else {
+		args = append(args, "-f")
+		args = append(args, c.rootBuildFile)
+		banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
+	}
+
+	for i := range nargs {
+		args = append(args, nargs[i])
+	}
+
+	if !c.quiet {
+		fmt.Println(strings.Join(banner, " "))
+	}
+
+	cmd := exec.Command(c.executable, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
+}
+
+func (c MavenCommand) Empty() bool {
+	return len(c.executable) < 1
 }
 
 // Finds and executes mvnw/mvn
@@ -26,7 +67,7 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 	if noWrapper == nil {
 		executable = mvnw
 	} else if noMaven == nil {
-		if !quiet {
+		if !quiet && explicit {
 			fmt.Printf("No %s set up for this project. ", resolveMavenWrapperExec())
 			fmt.Println("Please consider setting one up.")
 			fmt.Println("(https://maven.apache.org/)")
@@ -43,16 +84,20 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 		if explicit {
 			os.Exit(-1)
 		} else {
-			return EmptyCmd()
+			return EmptyCommand{}
 		}
 	}
 
 	if explicitBuildFileSet {
-		return mvnCmd(executable, explicitBuildFile, args)
+		return MavenCommand{
+			quiet:             quiet,
+			executable:        executable,
+			args:              args,
+			explicitBuildFile: explicitBuildFile}
 	}
 
 	rootBuildFile, _ := findMavenRootFile(pwd, args)
-	_, noBuildFile := findMavenBuildFile(pwd, args)
+	buildFile, noBuildFile := findMavenBuildFile(pwd, args)
 
 	if noBuildFile != nil {
 		if explicit {
@@ -60,11 +105,16 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 			fmt.Println()
 			os.Exit(-1)
 		} else {
-			return EmptyCmd()
+			return EmptyCommand{}
 		}
 	}
 
-	return mvnCmd(executable, rootBuildFile, args)
+	return MavenCommand{
+		quiet:         quiet,
+		executable:    executable,
+		args:          args,
+		rootBuildFile: rootBuildFile,
+		buildFile:     buildFile}
 }
 
 // Finds the maven executable
