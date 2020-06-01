@@ -1,10 +1,47 @@
 = gum
 :linkattrs:
 :project-version: 0.1.0
+:project-owner:   kordamp
+:project-name:    gm
 
+image:https://github.com/{project-owner}/{project-name}/workflows/Build/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
 image:http://img.shields.io/badge/license-ASL2-blue.svg["ASL2 Licensed", link="https://opensource.org/licenses/Apache-2.0"]
 image:https://img.shields.io/badge/donations-Patreon-orange.svg[link="https://www.patreon.com/user?u=6609318"]
 
 ---
 
-Gum is a link:https://gradle.org[Gradle]/link:https:maven.apache.org[Maven] wrapper written in link:https://golang.org/[Go].
+Gum is a link:https://gradle.org[Gradle]/link:https:maven.apache.org[Maven] wrapper written in link:https://golang.org/[Go],
+inspired in link:https://github.com/dougborg/gdub[https://github.com/dougborg/gdub] and link:https://github.com/srs/gw[https://github.com/srs/gw].
+
+Gum automatically detects if the project is Gradle or Maven based and runs the appropriate command. However in the case that Gum guesses wrong you can force
+a specific build tool to be used.
+
+== Usage
+
+Gum supports the following flags
+
+* *-gg* force Gradle build
+* *-gh* displays help information
+* *-gm* force Maven build
+* *-gn* executes nearest build file
+* *-gq* run gm in quiet mode
+* *-gv* displays version information
+
+Gum will execute the build based on the root build file unless *-gn* is specified, in which case the nearest build file will be selected.
+If a specific build file is given (*-b*, *--build-file* for Gradle; *-f*, *--file* for Maven) then that file will be used instead.
+
+== Installation
+
+You need Go installed on your system, follow link:https://golang.org/dl/[this link] to download and install.
+Once go is instaklled you can invoke the following command to install Gum
+
+[source,go]
+----
+go install github.com/kordamp/gm
+----
+
+Executables are installed in the directory named by the `GOBIN` environment
+variable, which defaults to `$GOPATH/bin` or `$HOME/go/bin` if the `GOPATH`
+environment variable is not set. Make sure that `$HOME/go/bin` is in your
+`$PATH`. If `GOPATH` is defined then `$GOPATH/bin` must be in your `$PATH`.
+
