@@ -32,8 +32,30 @@ If a specific build file is given (*-b*, *--build-file* for Gradle; *-f*, *--fil
 
 == Installation
 
+=== Homebrew
+
+Use the kordamp/homebrew-tap
+
+[source]
+----
+$ brew install kordamp/tap/gum
+----
+
+=== Snapcraft
+
+[source]
+----
+$ sudo snap install --classic gum
+----
+
+=== Manually
+
+Download the pre-compiled binaries from the link:https://github.com/kordamp/gm/releases[releases page] and copy to the desired location.
+
+=== Installing from Source
+
 You need Go installed on your system, follow link:https://golang.org/dl/[this link] to download and install.
-Once go is instaklled you can invoke the following command to install Gum
+Once Go is installed you can invoke the following command to install Gum
 
 [source,go]
 ----
@@ -45,3 +67,26 @@ variable, which defaults to `$GOPATH/bin` or `$HOME/go/bin` if the `GOPATH`
 environment variable is not set. Make sure that `$HOME/go/bin` is in your
 `$PATH`. If `GOPATH` is defined then `$GOPATH/bin` must be in your `$PATH`.
 
+=== Compiling from Source
+
+You need Go installed on your system, follow link:https://golang.org/dl/[this link] to download and install.
+Once Go is installed you can invoke the following command to install Gum
+
+.Clone:
+[source]
+----
+$ git clone https://github.com/kordamp/gm
+$ cd gm
+----
+
+.Build:
+[source]
+----
+$ go build gm.go
+----
+
+.Verify:
+[source]
+----
+$ ./gm -gv
+----
