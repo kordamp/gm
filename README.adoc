@@ -6,6 +6,7 @@
 
 image:https://github.com/{project-owner}/{project-name}/workflows/Build/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
 image:https://goreportcard.com/badge/github.com/{project-owner}/{project-name}[https://goreportcard.com/report/github.com/{project-owner}/{project-name}]
+image:https://img.shields.io/github/v/release/{project-owner}/{project-name}s[https://github.com/{project-owner}/{project-name}/releases]
 image:http://img.shields.io/badge/license-ASL2-blue.svg["ASL2 Licensed", link="https://opensource.org/licenses/Apache-2.0"]
 image:https://img.shields.io/badge/donations-Patreon-orange.svg[link="https://www.patreon.com/user?u=6609318"]
 
@@ -30,6 +31,20 @@ Gum supports the following flags
 
 Gum will execute the build based on the root build file unless *-gn* is specified, in which case the nearest build file will be selected.
 If a specific build file is given (*-b*, *--build-file* for Gradle; *-f*, *--file* for Maven) then that file will be used instead.
+
+Gum works by passing the given arguments to the resolved tool, thus you can invoke it with a Maven or Gradle build like so
+
+.Maven
+[source]
+----
+$ gm verify
+----
+
+.Gradle
+[source]
+----
+$ gm build
+----
 
 == Installation
 
