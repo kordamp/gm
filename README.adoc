@@ -6,7 +6,7 @@
 
 image:https://github.com/{project-owner}/{project-name}/workflows/Build/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
 image:https://goreportcard.com/badge/github.com/{project-owner}/{project-name}[https://goreportcard.com/report/github.com/{project-owner}/{project-name}]
-image:https://img.shields.io/github/v/release/{project-owner}/{project-name}s[https://github.com/{project-owner}/{project-name}/releases]
+image:https://img.shields.io/github/v/release/{project-owner}/{project-name}[https://github.com/{project-owner}/{project-name}/releases]
 image:http://img.shields.io/badge/license-ASL2-blue.svg["ASL2 Licensed", link="https://opensource.org/licenses/Apache-2.0"]
 image:https://img.shields.io/badge/donations-Patreon-orange.svg[link="https://www.patreon.com/user?u=6609318"]
 
