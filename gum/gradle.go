@@ -127,7 +127,7 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 			settingsFile:      settingsFile}
 	}
 
-	rootBuildFile, _ := findGradleRootFile(pwd, args)
+	rootBuildFile, _ := findGradleRootFile(filepath.Join(pwd, ".."), args)
 
 	if noBuildFile != nil {
 		if explicitSettingsFileSet {
@@ -330,14 +330,13 @@ func findGradleRootFile(dir string, args []string) (string, error) {
 	buildFiles[1] = "build.gradle.kts"
 
 	for i := range buildFiles {
-		currentBuild := filepath.Join(dir, buildFiles[i])
-		parentBuild := filepath.Join(parentdir, buildFiles[i])
-		if fileExists(currentBuild) && !fileExists(parentBuild) {
-			return filepath.Abs(currentBuild)
+		path := filepath.Join(dir, buildFiles[i])
+		if fileExists(path) {
+			return filepath.Abs(path)
 		}
 	}
 
-	return findGradleBuildFile(parentdir, args)
+	return findGradleRootFile(parentdir, args)
 }
 
 // Resolves the gradlew executable (OS dependent)
