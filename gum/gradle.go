@@ -91,25 +91,15 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 	if noWrapper == nil {
 		executable = gradlew
 	} else if noGradle == nil {
-		if !quiet && explicit {
-			fmt.Printf("No %s set up for this project. ", resolveGradleWrapperExec())
-			fmt.Println("Please consider setting one up.")
-			fmt.Println("(https://gradle.org/docs/current/userguide/gradle_wrapper.html)")
-			fmt.Println()
-		}
+		warnNoGradleWrapper(quiet, explicit)
 		executable = gradle
 	} else {
-		if !quiet {
-			fmt.Printf("No %s found in path. Please install Gradle.", resolveGradleExec())
-			fmt.Println("(https://gradle.org/docs/current/userguide/installation.html)")
-			fmt.Println()
-		}
+		warnNoGradle(quiet, explicit)
 
 		if explicit {
 			os.Exit(-1)
-		} else {
-			return nil
 		}
+		return nil
 	}
 
 	if projectDirSet {
@@ -162,9 +152,8 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 				fmt.Println("No Gradle project found.")
 				fmt.Println()
 				os.Exit(-1)
-			} else {
-				return nil
 			}
+			return nil
 		}
 	}
 
@@ -187,7 +176,24 @@ func resolveGradleWrapperExecutable(args []string) (string, error) {
 	return findGradleWrapperExec(pwd)
 }
 
-// finds the gradle executable
+func warnNoGradleWrapper(quiet bool, explicit bool) {
+	if !quiet && explicit {
+		fmt.Printf("No %s set up for this project. ", resolveGradleWrapperExec())
+		fmt.Println("Please consider setting one up.")
+		fmt.Println("(https://gradle.org/docs/current/userguide/gradle_wrapper.html)")
+		fmt.Println()
+	}
+}
+
+func warnNoGradle(quiet bool, explicit bool) {
+	if !quiet && explicit {
+		fmt.Printf("No %s found in path. Please install Gradle.", resolveGradleExec())
+		fmt.Println("(https://gradle.org/docs/current/userguide/installation.html)")
+		fmt.Println()
+	}
+}
+
+// Finds the gradle executable
 func findGradleExec() (string, error) {
 	gradle := resolveGradleExec()
 	paths := getPaths()
@@ -202,7 +208,7 @@ func findGradleExec() (string, error) {
 	return "", errors.New(gradle + " not found")
 }
 
-// finds the gradle wrapper (if it exists)
+// Finds the gradle wrapper (if it exists)
 func findGradleWrapperExec(dir string) (string, error) {
 	wrapper := resolveGradleWrapperExec()
 	parentdir := filepath.Join(dir, "..")

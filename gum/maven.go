@@ -63,25 +63,15 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 	if noWrapper == nil {
 		executable = mvnw
 	} else if noMaven == nil {
-		if !quiet && explicit {
-			fmt.Printf("No %s set up for this project. ", resolveMavenWrapperExec())
-			fmt.Println("Please consider setting one up.")
-			fmt.Println("(https://maven.apache.org/)")
-			fmt.Println()
-		}
+		warnNoMavenWrapper(quiet, explicit)
 		executable = mvn
 	} else {
-		if !quiet {
-			fmt.Printf("No %s found in path. Please install Maven.", resolveMavenExec())
-			fmt.Println("(https://maven.apache.org/download.cgi)")
-			fmt.Println()
-		}
+		warnNoMaven(quiet, explicit)
 
 		if explicit {
 			os.Exit(-1)
-		} else {
-			return nil
 		}
+		return nil
 	}
 
 	if explicitBuildFileSet {
@@ -100,9 +90,8 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 			fmt.Println("No Maven project found.")
 			fmt.Println()
 			os.Exit(-1)
-		} else {
-			return nil
 		}
+		return nil
 	}
 
 	return mavenCommand{
@@ -111,6 +100,23 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 		args:          args,
 		rootBuildFile: rootBuildFile,
 		buildFile:     buildFile}
+}
+
+func warnNoMavenWrapper(quiet bool, explicit bool) {
+	if !quiet && explicit {
+		fmt.Printf("No %s set up for this project. ", resolveMavenWrapperExec())
+		fmt.Println("Please consider setting one up.")
+		fmt.Println("(https://maven.apache.org/)")
+		fmt.Println()
+	}
+}
+
+func warnNoMaven(quiet bool, explicit bool) {
+	if !quiet && explicit {
+		fmt.Printf("No %s found in path. Please install Maven.", resolveMavenExec())
+		fmt.Println("(https://maven.apache.org/download.cgi)")
+		fmt.Println()
+	}
 }
 
 // Finds the maven executable
