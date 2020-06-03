@@ -82,7 +82,7 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 			explicitBuildFile: explicitBuildFile}
 	}
 
-	rootBuildFile, _ := findMavenRootFile(pwd, args)
+	rootBuildFile, _ := findMavenRootFile(filepath.Join(pwd, ".."), args)
 	buildFile, noBuildFile := findMavenBuildFile(pwd, args)
 
 	if noBuildFile != nil {
@@ -188,13 +188,12 @@ func findMavenRootFile(dir string, args []string) (string, error) {
 		return "", errors.New("Did not find root pom.xml")
 	}
 
-	currentPom := filepath.Join(dir, "pom.xml")
-	parentPom := filepath.Join(parentdir, "pom.xml")
-	if fileExists(currentPom) && !fileExists(parentPom) {
-		return filepath.Abs(currentPom)
+	path := filepath.Join(dir, "pom.xml")
+	if fileExists(path) {
+		return filepath.Abs(path)
 	}
 
-	return findGradleBuildFile(parentdir, args)
+	return findMavenRootFile(parentdir, args)
 }
 
 // Resolves the mvnw executable (OS dependent)
