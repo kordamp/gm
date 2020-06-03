@@ -13,6 +13,7 @@ type GradleCommand struct {
 	quiet                bool
 	executable           string
 	args                 []string
+	projectDir           string
 	buildFile            string
 	explicitBuildFile    string
 	rootBuildFile        string
@@ -27,31 +28,35 @@ func (c GradleCommand) Execute() {
 	banner = append(banner, "Using gradle at '"+c.executable+"'")
 	nearest, nargs := GrabFlag("-gn", c.args)
 
-	var buildFileSet bool
-	if len(c.explicitBuildFile) > 0 {
-		banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
-		buildFileSet = true
-	} else if nearest && len(c.buildFile) > 0 {
-		args = append(args, "-b")
-		args = append(args, c.buildFile)
-		banner = append(banner, "to run buildFile '"+c.buildFile+"':")
-		buildFileSet = true
+	if len(c.projectDir) > 0 {
+		banner = append(banner, "to run project at '"+c.projectDir+"':")
 	} else {
-		args = append(args, "-b")
-		args = append(args, c.rootBuildFile)
-		banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
-		buildFileSet = true
-	}
-
-	if len(c.settingsFile) > 0 {
-		args = append(args, "-c")
-		args = append(args, c.settingsFile)
-		if !buildFileSet {
-			banner = append(banner, "with settings at '"+c.settingsFile+"':")
+		var buildFileSet bool
+		if len(c.explicitBuildFile) > 0 {
+			banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
+			buildFileSet = true
+		} else if nearest && len(c.buildFile) > 0 {
+			args = append(args, "-b")
+			args = append(args, c.buildFile)
+			banner = append(banner, "to run buildFile '"+c.buildFile+"':")
+			buildFileSet = true
+		} else {
+			args = append(args, "-b")
+			args = append(args, c.rootBuildFile)
+			banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
+			buildFileSet = true
 		}
-	} else if len(c.explicitSettingsFile) > 0 {
-		if !buildFileSet {
-			banner = append(banner, "with settings at '"+c.explicitSettingsFile+"':")
+
+		if len(c.settingsFile) > 0 {
+			args = append(args, "-c")
+			args = append(args, c.settingsFile)
+			if !buildFileSet {
+				banner = append(banner, "with settings at '"+c.settingsFile+"':")
+			}
+		} else if len(c.explicitSettingsFile) > 0 {
+			if !buildFileSet {
+				banner = append(banner, "with settings at '"+c.explicitSettingsFile+"':")
+			}
 		}
 	}
 
@@ -77,8 +82,17 @@ func (c GradleCommand) Empty() bool {
 func FindGradle(quiet bool, explicit bool, args []string) Command {
 	pwd := GetWorkingDir()
 
-	gradlew, noWrapper := findGradleWrapperExec(pwd)
 	gradle, noGradle := findGradleExec()
+	projectDirSet, projectDir := findExplicitProjectDir(args)
+
+	var gradlew string
+	var noWrapper error
+	if projectDirSet {
+		gradlew, noWrapper = findGradleWrapperExec(projectDir)
+	} else {
+		gradlew, noWrapper = findGradleWrapperExec(pwd)
+	}
+
 	explicitBuildFileSet, explicitBuildFile := findExplicitGradleBuildFile(args)
 	explicitSettingsFileSet, explicitSettingsFile := findExplicitGradleSettingsFile(args)
 	settingsFile, noSettings := findGradleSettingsFile(pwd, args)
@@ -107,6 +121,14 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 		} else {
 			return EmptyCommand{}
 		}
+	}
+
+	if projectDirSet {
+		return GradleCommand{
+			quiet:      quiet,
+			executable: executable,
+			args:       args,
+			projectDir: projectDir}
 	}
 
 	if explicitBuildFileSet {
@@ -197,6 +219,19 @@ func findGradleWrapperExec(dir string) (string, error) {
 	}
 
 	return findGradleWrapperExec(parentdir)
+}
+
+func findExplicitProjectDir(args []string) (bool, string) {
+	found, file := FindFlag("-p", args)
+	if !found {
+		found, file = FindFlag("--project-dir", args)
+	}
+
+	if found {
+		return true, file
+	}
+
+	return false, ""
 }
 
 func findExplicitGradleBuildFile(args []string) (bool, string) {
