@@ -41,15 +41,13 @@ func findFlag(flag string, args []string) (bool, string) {
 			// next argument should contain the value we want
 			if i+1 < len(args) {
 				return true, args[i+1]
-			} else {
-				return false, ""
 			}
-		} else {
-			// check if format is flag=value
-			parts := strings.Split(s, "=")
-			if len(parts) == 2 && parts[0] == flag {
-				return true, parts[1]
-			}
+			return false, ""
+		}
+		// check if format is flag=value
+		parts := strings.Split(s, "=")
+		if len(parts) == 2 && parts[0] == flag {
+			return true, parts[1]
 		}
 	}
 

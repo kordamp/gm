@@ -135,14 +135,13 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 				args:                 args,
 				explicitBuildFile:    explicitBuildFile,
 				explicitSettingsFile: explicitSettingsFile}
-		} else {
-			return gradleCommand{
-				quiet:             quiet,
-				executable:        executable,
-				args:              args,
-				explicitBuildFile: explicitBuildFile,
-				settingsFile:      settingsFile}
 		}
+		return gradleCommand{
+			quiet:             quiet,
+			executable:        executable,
+			args:              args,
+			explicitBuildFile: explicitBuildFile,
+			settingsFile:      settingsFile}
 	}
 
 	rootBuildFile, _ := findGradleRootFile(pwd, args)

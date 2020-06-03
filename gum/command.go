@@ -1,6 +1,6 @@
 package gum
 
-// Defines an executable command
+// Command defines an executable command (gradle/maven)
 type Command interface {
 	// Executes the given command
 	Execute()
