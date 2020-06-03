@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type GradleCommand struct {
+type gradleCommand struct {
 	quiet                bool
 	executable           string
 	args                 []string
@@ -21,7 +21,7 @@ type GradleCommand struct {
 	explicitSettingsFile string
 }
 
-func (c GradleCommand) Execute() {
+func (c gradleCommand) Execute() {
 	args := make([]string, 0)
 
 	banner := make([]string, 0)
@@ -74,13 +74,9 @@ func (c GradleCommand) Execute() {
 	cmd.Run()
 }
 
-func (c GradleCommand) Empty() bool {
-	return len(c.executable) < 1
-}
-
-// Finds and executes gradlew/gradle
+// FindGradle finds and executes gradlew/gradle
 func FindGradle(quiet bool, explicit bool, args []string) Command {
-	pwd := GetWorkingDir()
+	pwd := getWorkingDir()
 
 	gradle, noGradle := findGradleExec()
 	projectDirSet, projectDir := findExplicitProjectDir(args)
@@ -119,12 +115,12 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 		if explicit {
 			os.Exit(-1)
 		} else {
-			return EmptyCommand{}
+			return nil
 		}
 	}
 
 	if projectDirSet {
-		return GradleCommand{
+		return gradleCommand{
 			quiet:      quiet,
 			executable: executable,
 			args:       args,
@@ -133,14 +129,14 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 
 	if explicitBuildFileSet {
 		if explicitSettingsFileSet {
-			return GradleCommand{
+			return gradleCommand{
 				quiet:                quiet,
 				executable:           executable,
 				args:                 args,
 				explicitBuildFile:    explicitBuildFile,
 				explicitSettingsFile: explicitSettingsFile}
 		} else {
-			return GradleCommand{
+			return gradleCommand{
 				quiet:             quiet,
 				executable:        executable,
 				args:              args,
@@ -157,7 +153,7 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 				fmt.Printf("Did not find a suitable Gradle build file but %s is specified", explicitSettingsFile)
 				fmt.Println()
 			}
-			return GradleCommand{
+			return gradleCommand{
 				quiet:                quiet,
 				executable:           executable,
 				args:                 args,
@@ -175,12 +171,12 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 				fmt.Println()
 				os.Exit(-1)
 			} else {
-				return EmptyCommand{}
+				return nil
 			}
 		}
 	}
 
-	return GradleCommand{
+	return gradleCommand{
 		quiet:         quiet,
 		executable:    executable,
 		args:          args,
@@ -192,11 +188,11 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 // Finds the gradle executable
 func findGradleExec() (string, error) {
 	gradle := resolveGradleExec()
-	paths := GetPaths()
+	paths := getPaths()
 
 	for i := range paths {
 		name := filepath.Join(paths[i], gradle)
-		if FileExists(name) {
+		if fileExists(name) {
 			return filepath.Abs(name)
 		}
 	}
@@ -214,7 +210,7 @@ func findGradleWrapperExec(dir string) (string, error) {
 	}
 
 	path := filepath.Join(dir, wrapper)
-	if FileExists(path) {
+	if fileExists(path) {
 		return filepath.Abs(path)
 	}
 
@@ -222,9 +218,9 @@ func findGradleWrapperExec(dir string) (string, error) {
 }
 
 func findExplicitProjectDir(args []string) (bool, string) {
-	found, file := FindFlag("-p", args)
+	found, file := findFlag("-p", args)
 	if !found {
-		found, file = FindFlag("--project-dir", args)
+		found, file = findFlag("--project-dir", args)
 	}
 
 	if found {
@@ -235,9 +231,9 @@ func findExplicitProjectDir(args []string) (bool, string) {
 }
 
 func findExplicitGradleBuildFile(args []string) (bool, string) {
-	found, file := FindFlag("-b", args)
+	found, file := findFlag("-b", args)
 	if !found {
-		found, file = FindFlag("--build-file", args)
+		found, file = findFlag("--build-file", args)
 	}
 
 	if found {
@@ -248,9 +244,9 @@ func findExplicitGradleBuildFile(args []string) (bool, string) {
 }
 
 func findExplicitGradleSettingsFile(args []string) (bool, string) {
-	found, file := FindFlag("-c", args)
+	found, file := findFlag("-c", args)
 	if !found {
-		found, file = FindFlag("--settings-file", args)
+		found, file = findFlag("--settings-file", args)
 	}
 
 	if found {
@@ -282,7 +278,7 @@ func findGradleBuildFile(dir string, args []string) (string, error) {
 
 	for i := range buildFiles {
 		path := filepath.Join(dir, buildFiles[i])
-		if FileExists(path) {
+		if fileExists(path) {
 			return filepath.Abs(path)
 		}
 	}
@@ -305,7 +301,7 @@ func findGradleSettingsFile(dir string, args []string) (string, error) {
 
 	for i := range settingsFiles {
 		path := filepath.Join(dir, settingsFiles[i])
-		if FileExists(path) {
+		if fileExists(path) {
 			return filepath.Abs(path)
 		}
 	}
@@ -328,7 +324,7 @@ func findGradleRootFile(dir string, args []string) (string, error) {
 	for i := range buildFiles {
 		currentBuild := filepath.Join(dir, buildFiles[i])
 		parentBuild := filepath.Join(parentdir, buildFiles[i])
-		if FileExists(currentBuild) && !FileExists(parentBuild) {
+		if fileExists(currentBuild) && !fileExists(parentBuild) {
 			return filepath.Abs(currentBuild)
 		}
 	}
@@ -338,7 +334,7 @@ func findGradleRootFile(dir string, args []string) (string, error) {
 
 // Resolves the gradlew executable (OS dependent)
 func resolveGradleWrapperExec() string {
-	if IsWindows() {
+	if isWindows() {
 		return "gradlew.bat"
 	}
 	return "gradlew"
@@ -346,7 +342,7 @@ func resolveGradleWrapperExec() string {
 
 // Resolves the gradle executable (OS dependent)
 func resolveGradleExec() string {
-	if IsWindows() {
+	if isWindows() {
 		return "gradle.bat"
 	}
 	return "gradle"

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// GrabFlag finds a boolean flag in the given args, removing it from the slice if found
 func GrabFlag(f string, args []string) (bool, []string) {
 	if len(args) == 0 {
 		// no args to be checked
@@ -29,7 +30,7 @@ func GrabFlag(f string, args []string) (bool, []string) {
 	return false, args
 }
 
-func FindFlag(flag string, args []string) (bool, string) {
+func findFlag(flag string, args []string) (bool, string) {
 	if len(args) == 0 {
 		return false, ""
 	}
@@ -55,12 +56,12 @@ func FindFlag(flag string, args []string) (bool, string) {
 	return false, ""
 }
 
-func IsWindows() bool {
+func isWindows() bool {
 	return runtime.GOOS == "windows"
 }
 
 // Returns the current working dir
-func GetWorkingDir() string {
+func getWorkingDir() string {
 	pwd, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -70,13 +71,13 @@ func GetWorkingDir() string {
 }
 
 // Gets the paths in $PATH
-func GetPaths() []string {
+func getPaths() []string {
 	return strings.Split(getPathFromEnv(), string(os.PathListSeparator))
 }
 
 // Gets the PATH environment variable
 func getPathFromEnv() string {
-	if IsWindows() {
+	if isWindows() {
 		return os.Getenv("Path")
 	}
 
@@ -84,7 +85,7 @@ func getPathFromEnv() string {
 }
 
 // Checks if a file exists
-func FileExists(name string) bool {
+func fileExists(name string) bool {
 	_, err := os.Stat(name)
 	return !os.IsNotExist(err)
 }

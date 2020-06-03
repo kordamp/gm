@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	VERSION string = "0.1.0"
+	// VERSION is current Gum version
+	VERSION string = "0.2.0"
 )
 
 func main() {
@@ -49,22 +50,21 @@ func main() {
 		cmd = findGradleOrMaven(quiet, args)
 	}
 
-	cmd.Execute()
+	if cmd != nil {
+		cmd.Execute()
+	} else {
+		fmt.Println("Did not find a Gradle nor Maven project.")
+		os.Exit(-1)
+	}
 }
 
 // Attempts to execute gradlew/gradle first then mvnw/mvn
 func findGradleOrMaven(quiet bool, args []string) gum.Command {
 	cmd := gum.FindGradle(quiet, false, args)
 
-	if !cmd.Empty() {
+	if cmd != nil {
 		return cmd
 	}
 
-	cmd = gum.FindMaven(quiet, false, args)
-
-	if !cmd.Empty() {
-		return cmd
-	}
-
-	return gum.EmptyCommand{}
+	return gum.FindMaven(quiet, false, args)
 }

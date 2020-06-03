@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type MavenCommand struct {
+type mavenCommand struct {
 	quiet             bool
 	executable        string
 	args              []string
@@ -18,7 +18,7 @@ type MavenCommand struct {
 	rootBuildFile     string
 }
 
-func (c MavenCommand) Execute() {
+func (c mavenCommand) Execute() {
 	args := make([]string, 0)
 
 	banner := make([]string, 0)
@@ -51,13 +51,9 @@ func (c MavenCommand) Execute() {
 	cmd.Run()
 }
 
-func (c MavenCommand) Empty() bool {
-	return len(c.executable) < 1
-}
-
-// Finds and executes mvnw/mvn
+// FindMaven finds and executes mvnw/mvn
 func FindMaven(quiet bool, explicit bool, args []string) Command {
-	pwd := GetWorkingDir()
+	pwd := getWorkingDir()
 
 	mvnw, noWrapper := findMavenWrapperExec(pwd)
 	mvn, noMaven := findMavenExec()
@@ -84,12 +80,12 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 		if explicit {
 			os.Exit(-1)
 		} else {
-			return EmptyCommand{}
+			return nil
 		}
 	}
 
 	if explicitBuildFileSet {
-		return MavenCommand{
+		return mavenCommand{
 			quiet:             quiet,
 			executable:        executable,
 			args:              args,
@@ -105,11 +101,11 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 			fmt.Println()
 			os.Exit(-1)
 		} else {
-			return EmptyCommand{}
+			return nil
 		}
 	}
 
-	return MavenCommand{
+	return mavenCommand{
 		quiet:         quiet,
 		executable:    executable,
 		args:          args,
@@ -120,11 +116,11 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 // Finds the maven executable
 func findMavenExec() (string, error) {
 	maven := resolveMavenExec()
-	paths := GetPaths()
+	paths := getPaths()
 
 	for i := range paths {
 		name := filepath.Join(paths[i], maven)
-		if FileExists(name) {
+		if fileExists(name) {
 			return filepath.Abs(name)
 		}
 	}
@@ -142,7 +138,7 @@ func findMavenWrapperExec(dir string) (string, error) {
 	}
 
 	path := filepath.Join(dir, wrapper)
-	if FileExists(path) {
+	if fileExists(path) {
 		return filepath.Abs(path)
 	}
 
@@ -150,9 +146,9 @@ func findMavenWrapperExec(dir string) (string, error) {
 }
 
 func findExplicitMavenBuildFile(args []string) (bool, string) {
-	found, buildFile := FindFlag("-f", args)
+	found, buildFile := findFlag("-f", args)
 	if !found {
-		found, buildFile = FindFlag("--file", args)
+		found, buildFile = findFlag("--file", args)
 	}
 
 	if found {
@@ -171,7 +167,7 @@ func findMavenBuildFile(dir string, args []string) (string, error) {
 	}
 
 	path := filepath.Join(dir, "pom.xml")
-	if FileExists(path) {
+	if fileExists(path) {
 		return filepath.Abs(path)
 	}
 
@@ -188,7 +184,7 @@ func findMavenRootFile(dir string, args []string) (string, error) {
 
 	currentPom := filepath.Join(dir, "pom.xml")
 	parentPom := filepath.Join(parentdir, "pom.xml")
-	if FileExists(currentPom) && !FileExists(parentPom) {
+	if fileExists(currentPom) && !fileExists(parentPom) {
 		return filepath.Abs(currentPom)
 	}
 
@@ -197,7 +193,7 @@ func findMavenRootFile(dir string, args []string) (string, error) {
 
 // Resolves the mvnw executable (OS dependent)
 func resolveMavenWrapperExec() string {
-	if IsWindows() {
+	if isWindows() {
 		return "mvnw.bat"
 	}
 	return "mvnw"
@@ -205,7 +201,7 @@ func resolveMavenWrapperExec() string {
 
 // Resolves the mvn executable (OS dependent)
 func resolveMavenExec() string {
-	if IsWindows() {
+	if isWindows() {
 		return "mvn.bat"
 	}
 	return "mvn"
