@@ -1,6 +1,5 @@
 = gum
 :linkattrs:
-:project-version: 0.1.0
 :project-owner:   kordamp
 :project-name:    gm
 
