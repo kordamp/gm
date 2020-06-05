@@ -27,7 +27,6 @@ jobs:
           path: ./gm/src/github.com/${{ github.repository }}
       - name: Test
         run: go test -v -coverprofile=profile.cov ./...
-        working-directory: ./gm/src/github.com/${{ github.repository }}
       - name: Coverage
         uses: shogo82148/actions-goveralls@v1
         with:
