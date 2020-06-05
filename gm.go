@@ -44,9 +44,9 @@ func main() {
 
 	var cmd gum.Command
 	if gradleBuild {
-		cmd = gum.FindGradle(quiet, true, args)
+		cmd = gum.FindGradle(gum.NewDefaultContext(quiet, true), args)
 	} else if mavenBuild {
-		cmd = gum.FindMaven(quiet, true, args)
+		cmd = gum.FindMaven(gum.NewDefaultContext(quiet, true), args)
 	} else {
 		cmd = findGradleOrMaven(quiet, args)
 	}
@@ -61,11 +61,13 @@ func main() {
 
 // Attempts to execute gradlew/gradle first then mvnw/mvn
 func findGradleOrMaven(quiet bool, args []string) gum.Command {
-	cmd := gum.FindGradle(quiet, false, args)
+	context := gum.NewDefaultContext(quiet, false)
+
+	cmd := gum.FindGradle(context, args)
 
 	if cmd != nil {
 		return cmd
 	}
 
-	return gum.FindMaven(quiet, false, args)
+	return gum.FindMaven(context, args)
 }

@@ -1,8 +1,6 @@
 package gum
 
 import (
-	"os"
-	"runtime"
 	"strings"
 )
 
@@ -52,38 +50,4 @@ func findFlag(flag string, args []string) (bool, string) {
 	}
 
 	return false, ""
-}
-
-func isWindows() bool {
-	return runtime.GOOS == "windows"
-}
-
-// Returns the current working dir
-func getWorkingDir() string {
-	pwd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
-	return pwd
-}
-
-// Gets the paths in $PATH
-func getPaths() []string {
-	return strings.Split(getPathFromEnv(), string(os.PathListSeparator))
-}
-
-// Gets the PATH environment variable
-func getPathFromEnv() string {
-	if isWindows() {
-		return os.Getenv("Path")
-	}
-
-	return os.Getenv("PATH")
-}
-
-// Checks if a file exists
-func fileExists(name string) bool {
-	_, err := os.Stat(name)
-	return !os.IsNotExist(err)
 }

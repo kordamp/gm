@@ -5,6 +5,7 @@
 
 image:https://github.com/{project-owner}/{project-name}/workflows/Build/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
 image:https://goreportcard.com/badge/github.com/{project-owner}/{project-name}["GoReport Card", link="https://goreportcard.com/report/github.com/{project-owner}/{project-name}"]
+image:https://coveralls.io/repos/github/project-owner}/{project-name}/badge.svg["Coveralls", link="https://coveralls.io/github/project-owner}/{project-name}"]
 image:https://img.shields.io/github/v/release/{project-owner}/{project-name}["Release", link="https://github.com/{project-owner}/{project-name}/releases"]
 image:https://snapcraft.io/gum/badge.svg["Snapcraft", link="https://snapcraft.io/gum"]
 image:https://img.shields.io/github/license/{project-owner}/{project-name}["ASL2 Licensed", link="https://opensource.org/licenses/Apache-2.0"]

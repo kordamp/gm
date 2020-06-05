@@ -1,0 +1,242 @@
+package gum
+
+import (
+	"path/filepath"
+	"testing"
+)
+
+func TestMavenSingleWithWrapper(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "single-with-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindMaven(context, []string{})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(pwd, "mvnw")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+}
+
+func TestMavenSingleWithoutWrapper(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "single-without-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindMaven(context, []string{})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(bin, "mvn")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+}
+
+func TestMavenParentWithWrapper(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "parent-with-wrapper", "child"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindMaven(context, []string{})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(pwd, "..", "mvnw")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "..", "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+}
+
+func TestMavenParentWithoutWrapper(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "parent-without-wrapper", "child"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindMaven(context, []string{})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(bin, "mvn")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "..", "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+}
+
+func TestMavenWithExplicitBuildFile(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "parent-with-explicit", "child"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindMaven(context, []string{"-f", filepath.Join(pwd, "explicit.xml")})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(bin, "mvn")},
+		{"RootBuildFile", cmd.rootBuildFile, ""},
+		{"BuildFile", cmd.buildFile, ""},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, filepath.Join(pwd, "explicit.xml")},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+}
+
+func TestMavenWithNearestBuildFile(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "parent-without-wrapper", "child"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindMaven(context, []string{"-gn"})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(bin, "mvn")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "..", "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+}
+
+func TestMavenWithoutExecutables(t *testing.T) {
+	// given:
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "single-without-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{}}
+
+	// when:
+	cmd := FindMaven(context, []string{})
+
+	// then:
+	if cmd != nil {
+		t.Error("Expected a nil command but got something")
+	}
+}

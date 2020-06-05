@@ -9,8 +9,9 @@ import (
 	"strings"
 )
 
-type mavenCommand struct {
-	quiet             bool
+// MavenCommand defines an executable Maven command
+type MavenCommand struct {
+	context           Context
 	executable        string
 	args              []string
 	buildFile         string
@@ -18,7 +19,8 @@ type mavenCommand struct {
 	rootBuildFile     string
 }
 
-func (c mavenCommand) Execute() {
+// Execute executes the given command
+func (c MavenCommand) Execute() {
 	args := make([]string, 0)
 
 	banner := make([]string, 0)
@@ -51,7 +53,7 @@ func (c mavenCommand) Execute() {
 		args = append(args, nargs[i])
 	}
 
-	if !c.quiet {
+	if !c.context.IsQuiet() {
 		fmt.Println(strings.Join(banner, " "))
 	}
 
@@ -62,85 +64,85 @@ func (c mavenCommand) Execute() {
 }
 
 // FindMaven finds and executes mvnw/mvn
-func FindMaven(quiet bool, explicit bool, args []string) Command {
-	pwd := getWorkingDir()
+func FindMaven(context Context, args []string) *MavenCommand {
+	pwd := context.GetWorkingDir()
 
-	mvnw, noWrapper := findMavenWrapperExec(pwd)
-	mvn, noMaven := findMavenExec()
+	mvnw, noWrapper := findMavenWrapperExec(context, pwd)
+	mvn, noMaven := findMavenExec(context)
 	explicitBuildFileSet, explicitBuildFile := findExplicitMavenBuildFile(args)
 
 	var executable string
 	if noWrapper == nil {
 		executable = mvnw
 	} else if noMaven == nil {
-		warnNoMavenWrapper(quiet, explicit)
+		warnNoMavenWrapper(context)
 		executable = mvn
 	} else {
-		warnNoMaven(quiet, explicit)
+		warnNoMaven(context)
 
-		if explicit {
-			os.Exit(-1)
+		if context.IsExplicit() {
+			context.Exit(-1)
 		}
 		return nil
 	}
 
 	if explicitBuildFileSet {
-		return mavenCommand{
-			quiet:             quiet,
+		return &MavenCommand{
+			context:           context,
 			executable:        executable,
 			args:              args,
 			explicitBuildFile: explicitBuildFile}
 	}
 
-	rootBuildFile, noRootBuildFile := findMavenRootFile(filepath.Join(pwd, ".."), args)
-	buildFile, noBuildFile := findMavenBuildFile(pwd, args)
+	rootBuildFile, noRootBuildFile := findMavenRootFile(context, filepath.Join(pwd, ".."), args)
+	buildFile, noBuildFile := findMavenBuildFile(context, pwd, args)
 
 	if noRootBuildFile != nil {
 		rootBuildFile = buildFile
 	}
 
 	if noBuildFile != nil {
-		if explicit {
+		if context.IsExplicit() {
 			fmt.Println("No Maven project found")
 			fmt.Println()
-			os.Exit(-1)
+			context.Exit(-1)
 		}
 		return nil
 	}
 
-	return mavenCommand{
-		quiet:         quiet,
+	return &MavenCommand{
+		context:       context,
 		executable:    executable,
 		args:          args,
 		rootBuildFile: rootBuildFile,
 		buildFile:     buildFile}
 }
 
-func warnNoMavenWrapper(quiet bool, explicit bool) {
-	if !quiet && explicit {
-		fmt.Printf("No %s set up for this project. ", resolveMavenWrapperExec())
+func warnNoMavenWrapper(context Context) {
+	if !context.IsQuiet() && context.IsExplicit() {
+		fmt.Printf("No %s set up for this project. ", resolveMavenWrapperExec(context))
 		fmt.Println("Please consider setting one up.")
 		fmt.Println("(https://maven.apache.org/)")
 		fmt.Println()
 	}
 }
 
-func warnNoMaven(quiet bool, explicit bool) {
-	if !quiet && explicit {
-		fmt.Printf("No %s found in path. Please install Maven.", resolveMavenExec())
+func warnNoMaven(context Context) {
+	if !context.IsQuiet() && context.IsExplicit() {
+		fmt.Printf("No %s found in path. Please install Maven.", resolveMavenExec(context))
 		fmt.Println("(https://maven.apache.org/download.cgi)")
 		fmt.Println()
 	}
 }
 
 // Finds the maven executable
-func findMavenExec() (string, error) {
-	maven := resolveMavenExec()
-	paths := getPaths()
+func findMavenExec(context Context) (string, error) {
+	maven := resolveMavenExec(context)
+	paths := context.GetPaths()
 
 	for i := range paths {
 		name := filepath.Join(paths[i], maven)
-		if fileExists(name) {
+		if context.FileExists(name) {
 			return filepath.Abs(name)
 		}
 	}
@@ -149,8 +151,8 @@ func findMavenExec() (string, error) {
 }
 
 // Finds the Maven wrapper (if it exists)
-func findMavenWrapperExec(dir string) (string, error) {
-	wrapper := resolveMavenWrapperExec()
+func findMavenWrapperExec(context Context, dir string) (string, error) {
+	wrapper := resolveMavenWrapperExec(context)
 	parentdir := filepath.Join(dir, "..")
 
 	if parentdir == dir {
@@ -158,11 +160,11 @@ func findMavenWrapperExec(dir string) (string, error) {
 	}
 
 	path := filepath.Join(dir, wrapper)
-	if fileExists(path) {
+	if context.FileExists(path) {
 		return filepath.Abs(path)
 	}
 
-	return findMavenWrapperExec(parentdir)
+	return findMavenWrapperExec(context, parentdir)
 }
 
 func findExplicitMavenBuildFile(args []string) (bool, string) {
@@ -180,7 +182,7 @@ func findExplicitMavenBuildFile(args []string) (bool, string) {
 }
 
 // Finds the nearest pom.xml
-func findMavenBuildFile(dir string, args []string) (string, error) {
+func findMavenBuildFile(context Context, dir string, args []string) (string, error) {
 	parentdir := filepath.Join(dir, "..")
 
 	if parentdir == dir {
@@ -188,15 +190,15 @@ func findMavenBuildFile(dir string, args []string) (string, error) {
 	}
 
 	path := filepath.Join(dir, "pom.xml")
-	if fileExists(path) {
+	if context.FileExists(path) {
 		return filepath.Abs(path)
 	}
 
-	return findMavenBuildFile(parentdir, args)
+	return findMavenBuildFile(context, parentdir, args)
 }
 
 // Finds the root pom.xml
-func findMavenRootFile(dir string, args []string) (string, error) {
+func findMavenRootFile(context Context, dir string, args []string) (string, error) {
 	parentdir := filepath.Join(dir, "..")
 
 	if parentdir == dir {
@@ -204,24 +206,24 @@ func findMavenRootFile(dir string, args []string) (string, error) {
 	}
 
 	path := filepath.Join(dir, "pom.xml")
-	if fileExists(path) {
+	if context.FileExists(path) {
 		return filepath.Abs(path)
 	}
 
-	return findMavenRootFile(parentdir, args)
+	return findMavenRootFile(context, parentdir, args)
 }
 
 // Resolves the mvnw executable (OS dependent)
-func resolveMavenWrapperExec() string {
-	if isWindows() {
+func resolveMavenWrapperExec(context Context) string {
+	if context.IsWindows() {
 		return "mvnw.bat"
 	}
 	return "mvnw"
 }
 
 // Resolves the mvn executable (OS dependent)
-func resolveMavenExec() string {
-	if isWindows() {
+func resolveMavenExec(context Context) string {
+	if context.IsWindows() {
 		return "mvn.bat"
 	}
 	return "mvn"
