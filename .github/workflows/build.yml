@@ -31,7 +31,7 @@ jobs:
         uses: shogo82148/actions-goveralls@v1
         with:
           github-token: ${{ secrets.COVERALLS_TOKEN }}
-          path-to-profile: ./gm/src/github.com/${{ github.repository }}/profile.cov
+          path-to-profile: profile.cov
           flag-name: Unit-${{ matrix.os }}
           parallel: true
   # notifies that all test jobs are finished.
