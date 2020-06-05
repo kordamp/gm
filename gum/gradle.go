@@ -60,15 +60,15 @@ func (c gradleCommand) Execute() {
 			buildFileSet = true
 		}
 
-		if len(c.settingsFile) > 0 {
+		if len(c.explicitSettingsFile) > 0 {
+			if !buildFileSet {
+				banner = append(banner, "with settings at '"+c.explicitSettingsFile+"':")
+			}
+		} else if len(c.settingsFile) > 0 {
 			args = append(args, "-c")
 			args = append(args, c.settingsFile)
 			if !buildFileSet {
 				banner = append(banner, "with settings at '"+c.settingsFile+"':")
-			}
-		} else if len(c.explicitSettingsFile) > 0 {
-			if !buildFileSet {
-				banner = append(banner, "with settings at '"+c.explicitSettingsFile+"':")
 			}
 		}
 	}
@@ -175,12 +175,13 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 	}
 
 	return gradleCommand{
-		quiet:         quiet,
-		executable:    executable,
-		args:          args,
-		buildFile:     buildFile,
-		rootBuildFile: rootBuildFile,
-		settingsFile:  settingsFile}
+		quiet:                quiet,
+		executable:           executable,
+		args:                 args,
+		buildFile:            buildFile,
+		rootBuildFile:        rootBuildFile,
+		settingsFile:         settingsFile,
+		explicitSettingsFile: explicitSettingsFile}
 }
 
 func resolveGradleWrapperExecutable(args []string) (string, error) {
