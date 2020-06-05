@@ -63,6 +63,7 @@ snapcrafts:
       * **-gm** force Maven build
       * **-gn** executes nearest build file
       * **-gq** run gm in quiet mode
+      * **-gr** do not replace goals/tasks
       * **-gv** displays version information
 
       Gum will execute the build based on the root build file unless **-gn** is specified, in which case the nearest build file

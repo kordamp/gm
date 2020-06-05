@@ -51,3 +51,20 @@ func findFlag(flag string, args []string) (bool, string) {
 
 	return false, ""
 }
+
+func replaceArgs(args []string, replacements map[string]string) []string {
+	nargs := make([]string, 0)
+
+	for i := range args {
+		key := args[i]
+		val := replacements[key]
+
+		if len(val) > 0 {
+			nargs = append(nargs, val)
+		} else {
+			nargs = append(nargs, key)
+		}
+	}
+
+	return nargs
+}

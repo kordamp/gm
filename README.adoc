@@ -29,24 +29,41 @@ Gum supports the following flags
 * *-gm* force Maven build
 * *-gn* executes nearest build file
 * *-gq* run gm in quiet mode
+* *-gr* do not replace goals/tasks
 * *-gv* displays version information
 
 Gum will execute the build based on the root build file unless *-gn* is specified, in which case the nearest build file will be selected.
 If a specific build file is given (*-b*, *--build-file* for Gradle; *-f*, *--file* for Maven) then that file will be used instead.
 
-Gum works by passing the given arguments to the resolved tool, thus you can invoke it with a Maven or Gradle build like so
+Gum works by passing the given arguments to the resolved tool; it will replace common goal/task names following these mappings
+
+|===
+| Maven   | Gradle
+| compile | classes
+| package | assemble
+| verify  | build
+| install | publishToMavenLocal
+|===
+
+You can skip these replacements by defining the *-gr* flag.
+
+Gum can be used to run Maven and Gradle builds like so:
 
 .Maven
+[source]
+----
+$ gm build
+----
+
+Which results in the invocation of either *mvnw* or *mvn* with the *verify* goal.
+
+.Gradle
 [source]
 ----
 $ gm verify
 ----
 
-.Gradle
-[source]
-----
-$ gm build
-----
+Which results in the invocation of either *gradlew* or *gradle* with the *build* goal.
 
 == Installation
 

@@ -33,6 +33,7 @@ func main() {
 		fmt.Println("  -gm\tforce Maven build")
 		fmt.Println("  -gn\texecutes nearest build file")
 		fmt.Println("  -gq\trun gm in quiet mode")
+		fmt.Println("  -gr\tdo not replace goals/tasks")
 		fmt.Println("  -gv\tdisplays version information")
 		os.Exit(-1)
 	}

@@ -25,16 +25,32 @@ func (c MavenCommand) Execute() {
 
 	banner := make([]string, 0)
 	banner = append(banner, "Using maven at '"+c.executable+"'")
-	nearest, nargs := GrabFlag("-gn", c.args)
-	debug, nargs := GrabFlag("-gd", nargs)
+	nearest, oargs := GrabFlag("-gn", c.args)
+	debug, oargs := GrabFlag("-gd", oargs)
+	skipReplace, oargs := GrabFlag("-gr", oargs)
+
+	var nargs []string = oargs
+
+	if !skipReplace {
+		replacements := map[string]string{
+			"classes":             "compile",
+			"assemble":            "package",
+			"build":               "verify",
+			"publishToMavenLocal": "install",
+			"puTML":               "install"}
+
+		nargs = replaceArgs(oargs, replacements)
+	}
 
 	if debug {
 		fmt.Println("nearest            = ", nearest)
-		fmt.Println("args               = ", nargs)
 		fmt.Println("rootBuildFile      = ", c.rootBuildFile)
 		fmt.Println("buildFile          = ", c.buildFile)
 		fmt.Println("explicitBuildFile  = ", c.explicitBuildFile)
-		fmt.Println("")
+		fmt.Println("original args      = ", oargs)
+		if !skipReplace {
+			fmt.Println("replaced args      = ", nargs)
+		}
 	}
 
 	if len(c.explicitBuildFile) > 0 {
@@ -53,6 +69,11 @@ func (c MavenCommand) Execute() {
 		args = append(args, nargs[i])
 	}
 
+	if debug {
+		fmt.Println("actual args        = ", args)
+		fmt.Println("")
+	}
+
 	if !c.context.IsQuiet() {
 		fmt.Println(strings.Join(banner, " "))
 	}
@@ -61,6 +82,23 @@ func (c MavenCommand) Execute() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+}
+
+func replaceMavenGoals(skipReplace bool, args []string) []string {
+	var nargs []string = args
+
+	if !skipReplace {
+		replacements := map[string]string{
+			"classes":             "compile",
+			"assemble":            "package",
+			"build":               "verify",
+			"publishToMavenLocal": "install",
+			"puTML":               "install"}
+
+		nargs = replaceArgs(args, replacements)
+	}
+
+	return nargs
 }
 
 // FindMaven finds and executes mvnw/mvn

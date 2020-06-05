@@ -28,19 +28,24 @@ func (c GradleCommand) Execute() {
 
 	banner := make([]string, 0)
 	banner = append(banner, "Using gradle at '"+c.executable+"'")
-	nearest, nargs := GrabFlag("-gn", c.args)
-	debug, nargs := GrabFlag("-gd", nargs)
+	nearest, oargs := GrabFlag("-gn", c.args)
+	debug, oargs := GrabFlag("-gd", oargs)
+	skipReplace, oargs := GrabFlag("-gr", oargs)
+
+	nargs := replaceGradleTasks(skipReplace, oargs)
 
 	if debug {
 		fmt.Println("nearest              = ", nearest)
-		fmt.Println("args                 = ", nargs)
 		fmt.Println("rootBuildFile        = ", c.rootBuildFile)
 		fmt.Println("buildFile            = ", c.buildFile)
 		fmt.Println("settingsFile         = ", c.settingsFile)
 		fmt.Println("explicitBuildFile    = ", c.explicitBuildFile)
 		fmt.Println("explicitSettingsFile = ", c.explicitSettingsFile)
 		fmt.Println("explicitProjectDir   = ", c.explicitProjectDir)
-		fmt.Println("")
+		fmt.Println("original args        = ", oargs)
+		if !skipReplace {
+			fmt.Println("replaced args        = ", nargs)
+		}
 	}
 
 	if len(c.explicitProjectDir) > 0 {
@@ -79,6 +84,11 @@ func (c GradleCommand) Execute() {
 		args = append(args, nargs[i])
 	}
 
+	if debug {
+		fmt.Println("actual args          = ", args)
+		fmt.Println("")
+	}
+
 	if !c.context.IsQuiet() {
 		fmt.Println(strings.Join(banner, " "))
 	}
@@ -87,6 +97,22 @@ func (c GradleCommand) Execute() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+}
+
+func replaceGradleTasks(skipReplace bool, args []string) []string {
+	var nargs []string = args
+
+	if !skipReplace {
+		replacements := map[string]string{
+			"compile": "classes",
+			"package": "assemble",
+			"verify":  "build",
+			"install": "publishToMavenLocal"}
+
+		nargs = replaceArgs(args, replacements)
+	}
+
+	return nargs
 }
 
 // FindGradle finds and executes gradlew/gradle
