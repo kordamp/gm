@@ -17,30 +17,34 @@ jobs:
       GOPATH: ${{ github.workspace }}
       GO111MODULE: off
     steps:
-      - 
-        name: Set up Go
+      - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: '1.x'
-      - 
-        name: Set up GOPATH
+          go-version: "1.x"
+      - name: Set up GOPATH
         run: |
           echo "::set-env name=GOPATH::${{ github.workspace }}"
           echo "::add-path::${{ github.workspace }}/bin"
-      - 
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v1
         with:
           path: src/github.com/kordamp/gm
-      - 
-        name: Build
-        run: |
-          go get ./...
-          go install .
+      - name: Test
+        run: go test -v -coverprofile=profile.cov ./...
         working-directory: src/github.com/kordamp/gm
-      - 
-        name: Run tests
-        run: goveralls -service=github -parallel -flagname="Unit-${{ matrix.os }}"
-        working-directory: src/github.com/kordamp/gm
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+      - name: Coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          github-token: ${{ secrets.COVERALLS_TOKEN }}
+          path-to-profile: src/github.com/kordamp/gm/profile.cov
+          flag-name: Unit-${{ matrix.os }}
+          parallel: true
+  # notifies that all test jobs are finished.
+  finish:
+    needs: Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shogo82148/actions-goveralls@v1
+        with:
+          github-token: ${{ secrets.COVERALLS_TOKEN }}
+          parallel-finished: true
