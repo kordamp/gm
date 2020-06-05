@@ -31,7 +31,7 @@ func (c mavenCommand) Execute() {
 		args = append(args, "-f")
 		args = append(args, c.buildFile)
 		banner = append(banner, "to run buildFile '"+c.buildFile+"':")
-	} else {
+	} else if len(c.rootBuildFile) > 0 {
 		args = append(args, "-f")
 		args = append(args, c.rootBuildFile)
 		banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
@@ -82,8 +82,12 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 			explicitBuildFile: explicitBuildFile}
 	}
 
-	rootBuildFile, _ := findMavenRootFile(filepath.Join(pwd, ".."), args)
+	rootBuildFile, noRootBuildFile := findMavenRootFile(filepath.Join(pwd, ".."), args)
 	buildFile, noBuildFile := findMavenBuildFile(pwd, args)
+
+	if noRootBuildFile != nil {
+		rootBuildFile = buildFile
+	}
 
 	if noBuildFile != nil {
 		if explicit {
