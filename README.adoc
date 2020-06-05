@@ -22,6 +22,7 @@ a specific build tool to be used.
 
 Gum supports the following flags
 
+* *-gd* displays debug information
 * *-gg* force Gradle build
 * *-gh* displays help information
 * *-gm* force Maven build

@@ -13,7 +13,7 @@ type gradleCommand struct {
 	quiet                bool
 	executable           string
 	args                 []string
-	projectDir           string
+	explicitProjectDir   string
 	buildFile            string
 	explicitBuildFile    string
 	rootBuildFile        string
@@ -27,9 +27,22 @@ func (c gradleCommand) Execute() {
 	banner := make([]string, 0)
 	banner = append(banner, "Using gradle at '"+c.executable+"'")
 	nearest, nargs := GrabFlag("-gn", c.args)
+	debug, nargs := GrabFlag("-gd", nargs)
 
-	if len(c.projectDir) > 0 {
-		banner = append(banner, "to run project at '"+c.projectDir+"':")
+	if debug {
+		fmt.Println("nearest              = ", nearest)
+		fmt.Println("args                 = ", nargs)
+		fmt.Println("rootBuildFile        = ", c.rootBuildFile)
+		fmt.Println("buildFile            = ", c.buildFile)
+		fmt.Println("settingsFile         = ", c.settingsFile)
+		fmt.Println("explicitBuildFile    = ", c.explicitBuildFile)
+		fmt.Println("explicitSettingsFile = ", c.explicitSettingsFile)
+		fmt.Println("explicitProjectDir   = ", c.explicitProjectDir)
+		fmt.Println("")
+	}
+
+	if len(c.explicitProjectDir) > 0 {
+		banner = append(banner, "to run project at '"+c.explicitProjectDir+"':")
 	} else {
 		var buildFileSet bool
 		if len(c.explicitBuildFile) > 0 {
@@ -79,7 +92,7 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 	pwd := getWorkingDir()
 
 	gradle, noGradle := findGradleExec()
-	projectDirSet, projectDir := findExplicitProjectDir(args)
+	explicitProjectDirSet, explicitProjectDir := findExplicitProjectDir(args)
 
 	gradlew, noWrapper := resolveGradleWrapperExecutable(args)
 	explicitBuildFileSet, explicitBuildFile := findExplicitGradleBuildFile(args)
@@ -102,12 +115,12 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 		return nil
 	}
 
-	if projectDirSet {
+	if explicitProjectDirSet {
 		return gradleCommand{
-			quiet:      quiet,
-			executable: executable,
-			args:       args,
-			projectDir: projectDir}
+			quiet:              quiet,
+			executable:         executable,
+			args:               args,
+			explicitProjectDir: explicitProjectDir}
 	}
 
 	if explicitBuildFileSet {
@@ -153,7 +166,7 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 			}
 		} else {
 			if explicit {
-				fmt.Println("No Gradle project found.")
+				fmt.Println("No Gradle project found")
 				fmt.Println()
 				os.Exit(-1)
 			}

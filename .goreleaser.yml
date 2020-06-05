@@ -33,7 +33,6 @@ checksum:
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
-  sort: asc
   filters:
     exclude:
       - "^docs:"
@@ -58,6 +57,7 @@ snapcrafts:
 
       Gum supports the following flags
 
+      * **-gd** displays debug information
       * **-gg** force Gradle build
       * **-gh** displays help information
       * **-gm** force Maven build

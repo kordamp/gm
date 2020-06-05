@@ -24,6 +24,16 @@ func (c mavenCommand) Execute() {
 	banner := make([]string, 0)
 	banner = append(banner, "Using maven at '"+c.executable+"'")
 	nearest, nargs := GrabFlag("-gn", c.args)
+	debug, nargs := GrabFlag("-gd", nargs)
+
+	if debug {
+		fmt.Println("nearest            = ", nearest)
+		fmt.Println("args               = ", nargs)
+		fmt.Println("rootBuildFile      = ", c.rootBuildFile)
+		fmt.Println("buildFile          = ", c.buildFile)
+		fmt.Println("explicitBuildFile  = ", c.explicitBuildFile)
+		fmt.Println("")
+	}
 
 	if len(c.explicitBuildFile) > 0 {
 		banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
@@ -91,7 +101,7 @@ func FindMaven(quiet bool, explicit bool, args []string) Command {
 
 	if noBuildFile != nil {
 		if explicit {
-			fmt.Println("No Maven project found.")
+			fmt.Println("No Maven project found")
 			fmt.Println()
 			os.Exit(-1)
 		}

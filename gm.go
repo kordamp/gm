@@ -9,7 +9,7 @@ import (
 
 const (
 	// VERSION is current Gum version
-	VERSION string = "0.2.0"
+	VERSION string = "0.3.0"
 )
 
 func main() {
@@ -27,6 +27,7 @@ func main() {
 
 	if help {
 		fmt.Println("Usage of gm:")
+		fmt.Println("  -gd\tdisplays debug information")
 		fmt.Println("  -gg\tforce Gradle build")
 		fmt.Println("  -gh\tdisplays help information")
 		fmt.Println("  -gm\tforce Maven build")
@@ -53,7 +54,7 @@ func main() {
 	if cmd != nil {
 		cmd.Execute()
 	} else {
-		fmt.Println("Did not find a Gradle nor Maven project.")
+		fmt.Println("Did not find a Gradle nor Maven project")
 		os.Exit(-1)
 	}
 }
