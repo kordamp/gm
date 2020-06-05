@@ -8,22 +8,39 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     runs-on: ${{ matrix.os }}
     env:
       GOPATH: ${{ github.workspace }}
       GO111MODULE: off
     steps:
-      - uses: actions/checkout@v1
+      - 
+        name: Set up Go
+        uses: actions/setup-go@v1
         with:
-          path: ./gm/src/github.com/${{ github.repository }}
-      - uses: actions/setup-go@v1
+          go-version: '1.x'
+      - 
+        name: Set up GOPATH
+        run: |
+          echo "::set-env name=GOPATH::${{ github.workspace }}"
+          echo "::add-path::${{ github.workspace }}/bin"
+      - 
+        name: Checkout
+        uses: actions/checkout@v1
         with:
-          go-version: '1.14.3'
-      - name: Run tests
-        run: go test -race -covermode atomic -coverprofile=profile.cov ./...
-      - name: Coveralls
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          github-token: ${{ secrets.COVERALLS_TOKEN }}
-          path-to-profile: profile.cov
+          path: src/github.com/kordamp/gm
+      - 
+        name: Build
+        run: |
+          go get ./...
+          go install .
+        working-directory: src/github.com/kordamp/gm
+      - 
+        name: Run tests
+        run: goveralls -service=github -parallel -flagname="Unit-${{ matrix.os }}"
+        working-directory: src/github.com/kordamp/gm
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
