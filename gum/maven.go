@@ -166,13 +166,14 @@ func findMavenWrapperExec(dir string) (string, error) {
 }
 
 func findExplicitMavenBuildFile(args []string) (bool, string) {
-	found, buildFile := findFlag("-f", args)
+	found, file := findFlag("-f", args)
 	if !found {
-		found, buildFile = findFlag("--file", args)
+		found, file = findFlag("--file", args)
 	}
 
 	if found {
-		return true, buildFile
+		file, _ = filepath.Abs(file)
+		return true, file
 	}
 
 	return false, ""

@@ -250,6 +250,7 @@ func findExplicitProjectDir(args []string) (bool, string) {
 	}
 
 	if found {
+		file, _ = filepath.Abs(file)
 		return true, file
 	}
 
@@ -263,6 +264,7 @@ func findExplicitGradleBuildFile(args []string) (bool, string) {
 	}
 
 	if found {
+		file, _ = filepath.Abs(file)
 		return true, file
 	}
 
@@ -276,6 +278,7 @@ func findExplicitGradleSettingsFile(args []string) (bool, string) {
 	}
 
 	if found {
+		file, _ = filepath.Abs(file)
 		return true, file
 	}
 
