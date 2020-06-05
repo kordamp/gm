@@ -40,7 +40,7 @@ func (c gradleCommand) Execute() {
 			args = append(args, c.buildFile)
 			banner = append(banner, "to run buildFile '"+c.buildFile+"':")
 			buildFileSet = true
-		} else {
+		} else if len(c.rootBuildFile) > 0 {
 			args = append(args, "-b")
 			args = append(args, c.rootBuildFile)
 			banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
@@ -127,7 +127,11 @@ func FindGradle(quiet bool, explicit bool, args []string) Command {
 			settingsFile:      settingsFile}
 	}
 
-	rootBuildFile, _ := findGradleRootFile(filepath.Join(pwd, ".."), args)
+	rootBuildFile, noRootBuildFile := findGradleRootFile(filepath.Join(pwd, ".."), args)
+
+	if noRootBuildFile != nil {
+		rootBuildFile = buildFile
+	}
 
 	if noBuildFile != nil {
 		if explicitSettingsFileSet {
