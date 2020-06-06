@@ -38,11 +38,22 @@ If a specific build file is given (*-b*, *--build-file* for Gradle; *-f*, *--fil
 Gum works by passing the given arguments to the resolved tool; it will replace common goal/task names following these mappings
 
 |===
-| Maven   | Gradle
-| compile | classes
-| package | assemble
-| verify  | build
-| install | publishToMavenLocal
+| Maven           | Gradle
+| compile         | classes
+| package         | assemble
+| verify          | build
+| verify          | check
+| install         | publishToMavenLocal
+| exec:java       | run
+| dependency:tree | dependencies
+|===
+
+The following tasks are mapped from Gradle to Maven only
+
+|===
+| Gradle          | Maven
+| jar             | package
+| check           | verify
 |===
 
 You can skip these replacements by defining the *-gr* flag.

@@ -104,10 +104,12 @@ func replaceGradleTasks(skipReplace bool, args []string) []string {
 
 	if !skipReplace {
 		replacements := map[string]string{
-			"compile": "classes",
-			"package": "assemble",
-			"verify":  "build",
-			"install": "publishToMavenLocal"}
+			"compile":         "classes",
+			"package":         "assemble",
+			"verify":          "build",
+			"install":         "publishToMavenLocal",
+			"exec:java":       "run",
+			"dependency:tree": "dependencies"}
 
 		nargs = replaceArgs(args, replacements)
 	}

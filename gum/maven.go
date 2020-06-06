@@ -29,18 +29,7 @@ func (c MavenCommand) Execute() {
 	debug, oargs := GrabFlag("-gd", oargs)
 	skipReplace, oargs := GrabFlag("-gr", oargs)
 
-	var nargs []string = oargs
-
-	if !skipReplace {
-		replacements := map[string]string{
-			"classes":             "compile",
-			"assemble":            "package",
-			"build":               "verify",
-			"publishToMavenLocal": "install",
-			"puTML":               "install"}
-
-		nargs = replaceArgs(oargs, replacements)
-	}
+	nargs := replaceMavenGoals(skipReplace, oargs)
 
 	if debug {
 		fmt.Println("nearest            = ", nearest)
@@ -90,10 +79,14 @@ func replaceMavenGoals(skipReplace bool, args []string) []string {
 	if !skipReplace {
 		replacements := map[string]string{
 			"classes":             "compile",
+			"jar":                 "package",
 			"assemble":            "package",
 			"build":               "verify",
 			"publishToMavenLocal": "install",
-			"puTML":               "install"}
+			"puTML":               "install",
+			"check":               "verify",
+			"run":                 "exec:java",
+			"dependencies":        "dependency:tree"}
 
 		nargs = replaceArgs(args, replacements)
 	}

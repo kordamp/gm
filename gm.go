@@ -9,7 +9,7 @@ import (
 
 const (
 	// VERSION is current Gum version
-	VERSION string = "0.3.0"
+	VERSION string = "0.4.0"
 )
 
 func main() {
