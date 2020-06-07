@@ -43,32 +43,33 @@ func main() {
 		os.Exit(-1)
 	}
 
-	var cmd gum.Command
 	if gradleBuild {
-		cmd = gum.FindGradle(gum.NewDefaultContext(quiet, true), args)
+		cmd := gum.FindGradle(gum.NewDefaultContext(quiet, true), args)
+		cmd.Execute()
 	} else if mavenBuild {
-		cmd = gum.FindMaven(gum.NewDefaultContext(quiet, true), args)
-	} else {
-		cmd = findGradleOrMaven(quiet, args)
-	}
-
-	if cmd != nil {
+		cmd := gum.FindMaven(gum.NewDefaultContext(quiet, true), args)
 		cmd.Execute()
 	} else {
-		fmt.Println("Did not find a Gradle nor Maven project")
-		os.Exit(-1)
+		findGradleOrMaven(quiet, args)
 	}
 }
 
 // Attempts to execute gradlew/gradle first then mvnw/mvn
-func findGradleOrMaven(quiet bool, args []string) gum.Command {
+func findGradleOrMaven(quiet bool, args []string) {
 	context := gum.NewDefaultContext(quiet, false)
 
-	cmd := gum.FindGradle(context, args)
-
-	if cmd != nil {
-		return cmd
+	gradle := gum.FindGradle(context, args)
+	if gradle != nil {
+		gradle.Execute()
+		os.Exit(0)
 	}
 
-	return gum.FindMaven(context, args)
+	maven := gum.FindMaven(context, args)
+	if maven != nil {
+		maven.Execute()
+		os.Exit(0)
+	}
+
+	fmt.Println("Did not find a Gradle nor Maven project")
+	os.Exit(-1)
 }
