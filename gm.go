@@ -23,10 +23,9 @@ import (
 	"github.com/kordamp/gm/gum"
 )
 
-const (
-	// VERSION is current Gum version
-	VERSION string = "0.4.0"
-)
+var gmVersion string
+var gmBuildCommit string
+var gmBuildTimestamp string
 
 func main() {
 	var args []string
@@ -37,7 +36,12 @@ func main() {
 	help, args := gum.GrabFlag("-gh", args)
 
 	if version {
-		fmt.Println("gm " + VERSION)
+		fmt.Println("------------------------------------------------------------")
+		fmt.Println("gm " + normalize(gmVersion))
+		fmt.Println("------------------------------------------------------------")
+		fmt.Println("Build time: " + normalize(gmBuildTimestamp))
+		fmt.Println("Revision:   " + normalize(gmBuildCommit))
+		fmt.Println("------------------------------------------------------------")
 		os.Exit(0)
 	}
 
@@ -88,4 +92,11 @@ func findGradleOrMaven(quiet bool, args []string) {
 
 	fmt.Println("Did not find a Gradle nor Maven project")
 	os.Exit(-1)
+}
+
+func normalize(s string) string {
+	if len(s) > 0 {
+		return s
+	}
+	return "undefined"
 }

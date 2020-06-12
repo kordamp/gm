@@ -14,6 +14,8 @@ builds:
       - goos: darwin
         goarch: 386
     main: ./gm.go
+    ldflags:
+     - -s -w -X 'main.gmVersion={{.Version}}' -X 'main.gmBuildCommit={{.Commit}}' -X 'main.gmBuildTimestamp={{.Date}}'
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     replacements:
