@@ -34,7 +34,7 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindMaven(context, []string{})
+	cmd := FindMaven(context, []string{"build"})
 
 	// then:
 	if cmd == nil {
@@ -54,6 +54,11 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 		if check.actual != check.expected {
 			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
 		}
+	}
+
+	cmd.doConfigureMaven()
+	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != "verify" {
+		t.Errorf("args: got build, want verify")
 	}
 }
 

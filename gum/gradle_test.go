@@ -34,7 +34,7 @@ func TestGradleSingleWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{})
+	cmd := FindGradle(context, []string{"verify"})
 
 	// then:
 	if cmd == nil {
@@ -57,6 +57,11 @@ func TestGradleSingleWithWrapper(t *testing.T) {
 		if check.actual != check.expected {
 			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
 		}
+	}
+
+	cmd.doConfigureGradle()
+	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != "build" {
+		t.Errorf("args: got verify, want build")
 	}
 }
 

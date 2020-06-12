@@ -36,6 +36,9 @@ type Context interface {
 	// GetWorkingDir returns the current working dir
 	GetWorkingDir() string
 
+	// GetHomeDir gets the home directory from environment
+	GetHomeDir() string
+
 	// GetPaths gets the paths in $PATH
 	GetPaths() []string
 

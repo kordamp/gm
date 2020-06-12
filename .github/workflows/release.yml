@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   Release:
@@ -12,36 +12,32 @@ jobs:
       GOPATH: ${{ github.workspace }}
       GO111MODULE: off
     steps:
-      - 
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v1
         with:
           path: ./gm/src/github.com/${{ github.repository }}
-      -
-        name: Set up Snapcraft
+      - name: Set up Snapcraft
         run: |
-          sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft  
-      - 
-        name: Set up Go
+          sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
+      - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: '1.14.3'
-      -
-        name: Snapcraft Login
+          go-version: "1.14.3"
+      - name: Snapcraft Login
         if: success() && startsWith(github.ref, 'refs/tags/v')
         env:
           SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
         run: |
           snapcraft login --with <(echo "$SNAPCRAFT_LOGIN")
-      -
-        name: Import GPG key
+      - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v2
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}    
-      -
-        name: Run GoReleaser
+          PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Get Dependencies
+        run: go get ./...
+      - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
           version: latest

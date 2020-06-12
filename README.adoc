@@ -76,6 +76,47 @@ $ gm verify
 
 Which results in the invocation of either *gradlew* or *gradle* with the *build* goal.
 
+== Configuration
+
+You may configure some aspects of Gum using a link:https://github.com/toml-lang/toml[TOML] based configuration file.
+There are two possible locations for this file
+
+* At the project's root directory. Must be named `.gm.toml`.
+* At your home directory. For Linux/MacOS it's `$HOME/.gm.toml`, for Windows it's `%APPDATA\Gum\gm.toml`.
+
+Settings at the project root override those at your home directory. The format is
+
+[source,toml]
+.gm.toml
+----
+[general]
+# same as passing -gq
+quiet = false
+# same as passing -gd
+debug = false
+
+[gradle]
+# if goal/tasks should be replaced, same as passing -gr
+replace = true
+# if the default replace mappings should be used
+defaults = true
+
+# maven -> gradle mappings
+[gradle.mappings]
+compile = "classes"
+"exec:java" = "run"
+
+[maven]
+# if goal/tasks should be replaced, same as passing -gr
+replace = true
+# if the default replace mappings should be used
+defaults = true
+
+# gradle -> mappings
+[maven.mappings]
+build = "verify"
+----
+
 == Installation
 
 === Homebrew
@@ -128,6 +169,7 @@ $ cd gm
 .Build:
 [source]
 ----
+$ go get ./...
 $ go build gm.go
 ----
 
@@ -135,4 +177,10 @@ $ go build gm.go
 [source]
 ----
 $ ./gm -gv
+----
+
+.Test
+[source]
+----
+$ go test -v ./...
 ----

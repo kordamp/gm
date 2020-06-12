@@ -72,6 +72,15 @@ func (c DefaultContext) getPathFromEnv() string {
 	return os.Getenv("PATH")
 }
 
+// GetHomeDir gets the home directory from environment
+func (c DefaultContext) GetHomeDir() string {
+	if c.IsWindows() {
+		return os.Getenv("APPDATA")
+	}
+
+	return os.Getenv("HOME")
+}
+
 // FileExists checks if a file exists
 func (c DefaultContext) FileExists(name string) bool {
 	_, err := os.Stat(name)
@@ -90,6 +99,7 @@ type testContext struct {
 	explicit   bool
 	windows    bool
 	workingDir string
+	homeDir    string
 	paths      []string
 	exitCode   int
 }
@@ -108,6 +118,10 @@ func (c testContext) IsWindows() bool {
 
 func (c testContext) GetWorkingDir() string {
 	return c.workingDir
+}
+
+func (c testContext) GetHomeDir() string {
+	return c.homeDir
 }
 
 func (c testContext) GetPaths() []string {

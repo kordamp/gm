@@ -28,6 +28,7 @@ import (
 // MavenCommand defines an executable Maven command
 type MavenCommand struct {
 	context           Context
+	config            *Config
 	executable        string
 	args              []string
 	buildFile         string
@@ -37,26 +38,25 @@ type MavenCommand struct {
 
 // Execute executes the given command
 func (c MavenCommand) Execute() {
+	c.doConfigureMaven()
+	c.doExecuteMaven()
+}
+
+func (c *MavenCommand) doConfigureMaven() {
 	args := make([]string, 0)
 
 	banner := make([]string, 0)
 	banner = append(banner, "Using maven at '"+c.executable+"'")
 	nearest, oargs := GrabFlag("-gn", c.args)
 	debug, oargs := GrabFlag("-gd", oargs)
+	replaceSet := findFlag("-gr", args)
 	skipReplace, oargs := GrabFlag("-gr", oargs)
 
-	nargs := replaceMavenGoals(skipReplace, oargs)
-
-	if debug {
-		fmt.Println("nearest            = ", nearest)
-		fmt.Println("rootBuildFile      = ", c.rootBuildFile)
-		fmt.Println("buildFile          = ", c.buildFile)
-		fmt.Println("explicitBuildFile  = ", c.explicitBuildFile)
-		fmt.Println("original args      = ", oargs)
-		if !skipReplace {
-			fmt.Println("replaced args      = ", nargs)
-		}
+	c.config.setDebug(debug)
+	if replaceSet {
+		c.config.maven.setReplace(!skipReplace)
 	}
+	rargs := replaceMavenGoals(c.config, oargs)
 
 	if len(c.explicitBuildFile) > 0 {
 		banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
@@ -70,41 +70,45 @@ func (c MavenCommand) Execute() {
 		banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
 	}
 
-	for i := range nargs {
-		args = append(args, nargs[i])
+	for i := range rargs {
+		args = append(args, rargs[i])
 	}
+	c.args = args
 
-	if debug {
-		fmt.Println("actual args        = ", args)
-		fmt.Println("")
-	}
+	c.debugMaven(nearest, oargs, rargs, args)
 
-	if !c.context.IsQuiet() {
+	if !c.config.general.quiet {
 		fmt.Println(strings.Join(banner, " "))
 	}
+}
 
-	cmd := exec.Command(c.executable, args...)
+func (c *MavenCommand) doExecuteMaven() {
+	cmd := exec.Command(c.executable, c.args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
 }
 
-func replaceMavenGoals(skipReplace bool, args []string) []string {
+func (c *MavenCommand) debugMaven(nearest bool, oargs []string, rargs []string, args []string) {
+	if c.config.general.debug {
+		fmt.Println("nearest            = ", nearest)
+		fmt.Println("rootBuildFile      = ", c.rootBuildFile)
+		fmt.Println("buildFile          = ", c.buildFile)
+		fmt.Println("explicitBuildFile  = ", c.explicitBuildFile)
+		fmt.Println("original args      = ", oargs)
+		if c.config.maven.replace {
+			fmt.Println("replaced args      = ", rargs)
+		}
+		fmt.Println("actual args        = ", args)
+		fmt.Println("")
+	}
+}
+
+func replaceMavenGoals(config *Config, args []string) []string {
 	var nargs []string = args
 
-	if !skipReplace {
-		replacements := map[string]string{
-			"classes":             "compile",
-			"jar":                 "package",
-			"assemble":            "package",
-			"build":               "verify",
-			"publishToMavenLocal": "install",
-			"puTML":               "install",
-			"check":               "verify",
-			"run":                 "exec:java",
-			"dependencies":        "dependency:tree"}
-
-		nargs = replaceArgs(args, replacements)
+	if config.maven.replace {
+		nargs = replaceArgs(args, config.maven.mappings)
 	}
 
 	return nargs
@@ -118,14 +122,20 @@ func FindMaven(context Context, args []string) *MavenCommand {
 	mvn, noMaven := findMavenExec(context)
 	explicitBuildFileSet, explicitBuildFile := findExplicitMavenBuildFile(args)
 
+	rootBuildFile, noRootBuildFile := findMavenRootFile(context, filepath.Join(pwd, ".."), args)
+	buildFile, noBuildFile := findMavenBuildFile(context, pwd, args)
+	rootdir := resolveMavenRootDir(context, explicitBuildFile, buildFile, rootBuildFile)
+	config := ReadConfig(context, rootdir)
+	config.setQuiet(context.IsQuiet())
+
 	var executable string
 	if noWrapper == nil {
 		executable = mvnw
 	} else if noMaven == nil {
-		warnNoMavenWrapper(context)
+		warnNoMavenWrapper(context, config)
 		executable = mvn
 	} else {
-		warnNoMaven(context)
+		warnNoMaven(context, config)
 
 		if context.IsExplicit() {
 			context.Exit(-1)
@@ -136,13 +146,11 @@ func FindMaven(context Context, args []string) *MavenCommand {
 	if explicitBuildFileSet {
 		return &MavenCommand{
 			context:           context,
+			config:            config,
 			executable:        executable,
 			args:              args,
 			explicitBuildFile: explicitBuildFile}
 	}
-
-	rootBuildFile, noRootBuildFile := findMavenRootFile(context, filepath.Join(pwd, ".."), args)
-	buildFile, noBuildFile := findMavenBuildFile(context, pwd, args)
 
 	if noRootBuildFile != nil {
 		rootBuildFile = buildFile
@@ -159,14 +167,28 @@ func FindMaven(context Context, args []string) *MavenCommand {
 
 	return &MavenCommand{
 		context:       context,
+		config:        config,
 		executable:    executable,
 		args:          args,
 		rootBuildFile: rootBuildFile,
 		buildFile:     buildFile}
 }
 
-func warnNoMavenWrapper(context Context) {
-	if !context.IsQuiet() && context.IsExplicit() {
+func resolveMavenRootDir(context Context,
+	explicitBuildFile string,
+	buildFile string,
+	rootBuildFile string) string {
+
+	if context.FileExists(explicitBuildFile) {
+		return filepath.Dir(explicitBuildFile)
+	} else if context.FileExists(rootBuildFile) {
+		return filepath.Dir(rootBuildFile)
+	}
+	return filepath.Dir(buildFile)
+}
+
+func warnNoMavenWrapper(context Context, config *Config) {
+	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s set up for this project. ", resolveMavenWrapperExec(context))
 		fmt.Println("Please consider setting one up.")
 		fmt.Println("(https://maven.apache.org/)")
@@ -174,8 +196,8 @@ func warnNoMavenWrapper(context Context) {
 	}
 }
 
-func warnNoMaven(context Context) {
-	if !context.IsQuiet() && context.IsExplicit() {
+func warnNoMaven(context Context, config *Config) {
+	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s found in path. Please install Maven.", resolveMavenExec(context))
 		fmt.Println("(https://maven.apache.org/download.cgi)")
 		fmt.Println()
@@ -215,9 +237,9 @@ func findMavenWrapperExec(context Context, dir string) (string, error) {
 }
 
 func findExplicitMavenBuildFile(args []string) (bool, string) {
-	found, file := findFlag("-f", args)
+	found, file := findFlagValue("-f", args)
 	if !found {
-		found, file = findFlag("--file", args)
+		found, file = findFlagValue("--file", args)
 	}
 
 	if found {

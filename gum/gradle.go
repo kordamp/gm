@@ -28,6 +28,7 @@ import (
 // GradleCommand defines an executable Gradle command
 type GradleCommand struct {
 	context              Context
+	config               *Config
 	executable           string
 	args                 []string
 	explicitProjectDir   string
@@ -40,29 +41,25 @@ type GradleCommand struct {
 
 // Execute executes the given command
 func (c GradleCommand) Execute() {
+	c.doConfigureGradle()
+	c.doExecuteGradle()
+}
+
+func (c *GradleCommand) doConfigureGradle() {
 	args := make([]string, 0)
 
 	banner := make([]string, 0)
 	banner = append(banner, "Using gradle at '"+c.executable+"'")
 	nearest, oargs := GrabFlag("-gn", c.args)
 	debug, oargs := GrabFlag("-gd", oargs)
+	replaceSet := findFlag("-gr", args)
 	skipReplace, oargs := GrabFlag("-gr", oargs)
 
-	nargs := replaceGradleTasks(skipReplace, oargs)
-
-	if debug {
-		fmt.Println("nearest              = ", nearest)
-		fmt.Println("rootBuildFile        = ", c.rootBuildFile)
-		fmt.Println("buildFile            = ", c.buildFile)
-		fmt.Println("settingsFile         = ", c.settingsFile)
-		fmt.Println("explicitBuildFile    = ", c.explicitBuildFile)
-		fmt.Println("explicitSettingsFile = ", c.explicitSettingsFile)
-		fmt.Println("explicitProjectDir   = ", c.explicitProjectDir)
-		fmt.Println("original args        = ", oargs)
-		if !skipReplace {
-			fmt.Println("replaced args        = ", nargs)
-		}
+	c.config.setDebug(debug)
+	if replaceSet {
+		c.config.gradle.setReplace(!skipReplace)
 	}
+	rargs := replaceGradleTasks(c.config, oargs)
 
 	if len(c.explicitProjectDir) > 0 {
 		banner = append(banner, "to run project at '"+c.explicitProjectDir+"':")
@@ -96,38 +93,48 @@ func (c GradleCommand) Execute() {
 		}
 	}
 
-	for i := range nargs {
-		args = append(args, nargs[i])
+	for i := range rargs {
+		args = append(args, rargs[i])
 	}
+	c.args = args
 
-	if debug {
-		fmt.Println("actual args          = ", args)
-		fmt.Println("")
-	}
+	c.debugGradle(nearest, oargs, rargs, args)
 
-	if !c.context.IsQuiet() {
+	if !c.config.general.quiet {
 		fmt.Println(strings.Join(banner, " "))
 	}
+}
 
-	cmd := exec.Command(c.executable, args...)
+func (c *GradleCommand) doExecuteGradle() {
+	cmd := exec.Command(c.executable, c.args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
 }
 
-func replaceGradleTasks(skipReplace bool, args []string) []string {
+func (c *GradleCommand) debugGradle(nearest bool, oargs []string, rargs []string, args []string) {
+	if c.config.general.debug {
+		fmt.Println("nearest              = ", nearest)
+		fmt.Println("rootBuildFile        = ", c.rootBuildFile)
+		fmt.Println("buildFile            = ", c.buildFile)
+		fmt.Println("settingsFile         = ", c.settingsFile)
+		fmt.Println("explicitBuildFile    = ", c.explicitBuildFile)
+		fmt.Println("explicitSettingsFile = ", c.explicitSettingsFile)
+		fmt.Println("explicitProjectDir   = ", c.explicitProjectDir)
+		fmt.Println("original args        = ", oargs)
+		if c.config.gradle.replace {
+			fmt.Println("replaced args        = ", rargs)
+		}
+		fmt.Println("actual args          = ", args)
+		fmt.Println("")
+	}
+}
+
+func replaceGradleTasks(config *Config, args []string) []string {
 	var nargs []string = args
 
-	if !skipReplace {
-		replacements := map[string]string{
-			"compile":         "classes",
-			"package":         "assemble",
-			"verify":          "build",
-			"install":         "publishToMavenLocal",
-			"exec:java":       "run",
-			"dependency:tree": "dependencies"}
-
-		nargs = replaceArgs(args, replacements)
+	if config.gradle.replace {
+		nargs = replaceArgs(args, config.gradle.mappings)
 	}
 
 	return nargs
@@ -146,14 +153,19 @@ func FindGradle(context Context, args []string) *GradleCommand {
 	settingsFile, noSettings := findGradleSettingsFile(context, pwd, args)
 	buildFile, noBuildFile := findGradleBuildFile(context, pwd, args)
 
+	rootBuildFile, noRootBuildFile := findGradleRootFile(context, filepath.Join(pwd, ".."), args)
+	rootdir := resolveGradleRootDir(context, explicitProjectDir, explicitBuildFile, explicitSettingsFile, buildFile, rootBuildFile, settingsFile)
+	config := ReadConfig(context, rootdir)
+	config.setQuiet(context.IsQuiet())
+
 	var executable string
 	if noWrapper == nil {
 		executable = gradlew
 	} else if noGradle == nil {
-		warnNoGradleWrapper(context)
+		warnNoGradleWrapper(context, config)
 		executable = gradle
 	} else {
-		warnNoGradle(context)
+		warnNoGradle(context, config)
 
 		if context.IsExplicit() {
 			context.Exit(-1)
@@ -164,6 +176,7 @@ func FindGradle(context Context, args []string) *GradleCommand {
 	if explicitProjectDirSet {
 		return &GradleCommand{
 			context:            context,
+			config:             config,
 			executable:         executable,
 			args:               args,
 			explicitProjectDir: explicitProjectDir}
@@ -173,6 +186,7 @@ func FindGradle(context Context, args []string) *GradleCommand {
 		if explicitSettingsFileSet {
 			return &GradleCommand{
 				context:              context,
+				config:               config,
 				executable:           executable,
 				args:                 args,
 				explicitBuildFile:    explicitBuildFile,
@@ -180,13 +194,12 @@ func FindGradle(context Context, args []string) *GradleCommand {
 		}
 		return &GradleCommand{
 			context:           context,
+			config:            config,
 			executable:        executable,
 			args:              args,
 			explicitBuildFile: explicitBuildFile,
 			settingsFile:      settingsFile}
 	}
-
-	rootBuildFile, noRootBuildFile := findGradleRootFile(context, filepath.Join(pwd, ".."), args)
 
 	if noRootBuildFile != nil {
 		rootBuildFile = buildFile
@@ -194,19 +207,20 @@ func FindGradle(context Context, args []string) *GradleCommand {
 
 	if noBuildFile != nil {
 		if explicitSettingsFileSet {
-			if !context.IsQuiet() {
+			if !config.general.quiet {
 				fmt.Printf("Did not find a suitable Gradle build file but %s is specified", explicitSettingsFile)
 				fmt.Println()
 			}
 			return &GradleCommand{
 				context:              context,
+				config:               config,
 				executable:           executable,
 				args:                 args,
 				buildFile:            buildFile,
 				rootBuildFile:        rootBuildFile,
 				explicitSettingsFile: explicitSettingsFile}
 		} else if noSettings == nil {
-			if !context.IsQuiet() {
+			if !config.general.quiet {
 				fmt.Printf("Did not find a suitable Gradle build file but found %s", settingsFile)
 				fmt.Println()
 			}
@@ -222,12 +236,35 @@ func FindGradle(context Context, args []string) *GradleCommand {
 
 	return &GradleCommand{
 		context:              context,
+		config:               config,
 		executable:           executable,
 		args:                 args,
 		buildFile:            buildFile,
 		rootBuildFile:        rootBuildFile,
 		settingsFile:         settingsFile,
 		explicitSettingsFile: explicitSettingsFile}
+}
+
+func resolveGradleRootDir(context Context,
+	explicitProjectDir string,
+	explicitBuildFile string,
+	explicitSettingsFile string,
+	buildFile string,
+	rootBuildFile string,
+	settingsFile string) string {
+
+	if context.FileExists(explicitProjectDir) {
+		return explicitProjectDir
+	} else if context.FileExists(explicitBuildFile) {
+		return filepath.Dir(explicitBuildFile)
+	} else if context.FileExists(rootBuildFile) {
+		return filepath.Dir(rootBuildFile)
+	} else if context.FileExists(explicitSettingsFile) {
+		return filepath.Dir(explicitSettingsFile)
+	} else if context.FileExists(settingsFile) {
+		return filepath.Dir(settingsFile)
+	}
+	return filepath.Dir(buildFile)
 }
 
 func resolveGradleWrapperExecutable(context Context, args []string) (string, error) {
@@ -240,8 +277,8 @@ func resolveGradleWrapperExecutable(context Context, args []string) (string, err
 	return findGradleWrapperExec(context, pwd)
 }
 
-func warnNoGradleWrapper(context Context) {
-	if !context.IsQuiet() && context.IsExplicit() {
+func warnNoGradleWrapper(context Context, config *Config) {
+	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s set up for this project. ", resolveGradleWrapperExec(context))
 		fmt.Println("Please consider setting one up.")
 		fmt.Println("(https://gradle.org/docs/current/userguide/gradle_wrapper.html)")
@@ -249,8 +286,8 @@ func warnNoGradleWrapper(context Context) {
 	}
 }
 
-func warnNoGradle(context Context) {
-	if !context.IsQuiet() && context.IsExplicit() {
+func warnNoGradle(context Context, config *Config) {
+	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s found in path. Please install Gradle.", resolveGradleExec(context))
 		fmt.Println("(https://gradle.org/docs/current/userguide/installation.html)")
 		fmt.Println()
@@ -290,9 +327,9 @@ func findGradleWrapperExec(context Context, dir string) (string, error) {
 }
 
 func findExplicitProjectDir(args []string) (bool, string) {
-	found, file := findFlag("-p", args)
+	found, file := findFlagValue("-p", args)
 	if !found {
-		found, file = findFlag("--project-dir", args)
+		found, file = findFlagValue("--project-dir", args)
 	}
 
 	if found {
@@ -304,9 +341,9 @@ func findExplicitProjectDir(args []string) (bool, string) {
 }
 
 func findExplicitGradleBuildFile(args []string) (bool, string) {
-	found, file := findFlag("-b", args)
+	found, file := findFlagValue("-b", args)
 	if !found {
-		found, file = findFlag("--build-file", args)
+		found, file = findFlagValue("--build-file", args)
 	}
 
 	if found {
@@ -318,9 +355,9 @@ func findExplicitGradleBuildFile(args []string) (bool, string) {
 }
 
 func findExplicitGradleSettingsFile(args []string) (bool, string) {
-	found, file := findFlag("-c", args)
+	found, file := findFlagValue("-c", args)
 	if !found {
-		found, file = findFlag("--settings-file", args)
+		found, file = findFlagValue("--settings-file", args)
 	}
 
 	if found {

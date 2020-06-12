@@ -51,7 +51,7 @@ func main() {
 		fmt.Println("  -gq\trun gm in quiet mode")
 		fmt.Println("  -gr\tdo not replace goals/tasks")
 		fmt.Println("  -gv\tdisplays version information")
-		os.Exit(-1)
+		os.Exit(0)
 	}
 
 	if gradleBuild && mavenBuild {

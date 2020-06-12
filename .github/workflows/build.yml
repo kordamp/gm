@@ -19,7 +19,9 @@ jobs:
         with:
           path: ./gm/src/github.com/${{ github.repository }}
       - name: Test
-        run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+        run: |
+          go get ./...
+          go test -v -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Coverage
         uses: codecov/codecov-action@v1
         with:

@@ -1,0 +1,9 @@
+[general]
+quiet = false
+debug = true
+
+[gradle]
+defaults = true
+
+[gradle.mappings]
+compile = "compileJava"

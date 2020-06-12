@@ -1,0 +1,9 @@
+[general]
+quiet = false
+debug = false
+
+[maven]
+defaults = true
+
+[maven.mappings]
+compileJava = "compile"
