@@ -153,7 +153,12 @@ func FindGradle(context Context, args []string) *GradleCommand {
 	settingsFile, noSettings := findGradleSettingsFile(context, pwd, args)
 	buildFile, noBuildFile := findGradleBuildFile(context, pwd, args)
 
-	rootBuildFile, noRootBuildFile := findGradleRootFile(context, filepath.Join(pwd, ".."), args)
+	sf := settingsFile
+	if explicitBuildFileSet {
+		sf = explicitBuildFile
+	}
+
+	rootBuildFile, noRootBuildFile := findGradleRootFile(context, filepath.Join(pwd, ".."), args, sf)
 	rootdir := resolveGradleRootDir(context, explicitProjectDir, explicitBuildFile, explicitSettingsFile, buildFile, rootBuildFile, settingsFile)
 	config := ReadConfig(context, rootdir)
 	config.setQuiet(context.IsQuiet())
@@ -422,7 +427,7 @@ func findGradleSettingsFile(context Context, dir string, args []string) (string,
 }
 
 // Finds the root build file
-func findGradleRootFile(context Context, dir string, args []string) (string, error) {
+func findGradleRootFile(context Context, dir string, args []string, settingsFile string) (string, error) {
 	parentdir := filepath.Join(dir, "..")
 
 	if parentdir == dir {
@@ -440,7 +445,14 @@ func findGradleRootFile(context Context, dir string, args []string) (string, err
 		}
 	}
 
-	return findGradleRootFile(context, parentdir, args)
+	if len(settingsFile) > 0 {
+		settingsdir := filepath.Dir(settingsFile)
+		if len(parentdir) <= len(settingsdir) {
+			return "", errors.New("Did not find root build file")
+		}
+	}
+
+	return findGradleRootFile(context, parentdir, args, settingsFile)
 }
 
 // Resolves the gradlew executable (OS dependent)
