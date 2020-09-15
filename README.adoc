@@ -13,11 +13,12 @@ image:https://img.shields.io/badge/donations-Patreon-orange.svg[link="https://ww
 
 ---
 
-Gum is a link:https://gradle.org[Gradle]/link:https:maven.apache.org[Maven] wrapper written in link:https://golang.org/[Go],
-inspired in link:https://github.com/dougborg/gdub[https://github.com/dougborg/gdub] and link:https://github.com/srs/gw[https://github.com/srs/gw].
+Gum is a link:https://gradle.org[Gradle]/link:https:maven.apache.org[Maven]/link:https://github.com/jbangdev[jbang] wrapper written in 
+link:https://golang.org/[Go], inspired in link:https://github.com/dougborg/gdub[https://github.com/dougborg/gdub] and 
+link:https://github.com/srs/gw[https://github.com/srs/gw].
 
-Gum automatically detects if the project is Gradle or Maven based and runs the appropriate command. However in the case that Gum guesses wrong you can force
-a specific build tool to be used.
+Gum automatically detects if the project is Gradle, Maven, or jbang based and runs the appropriate command. However in the case that Gum guesses wrong you can 
+force a specific build tool to be used.
 
 == Usage
 
@@ -26,6 +27,7 @@ Gum supports the following flags
 * *-gd* displays debug information
 * *-gg* force Gradle build
 * *-gh* displays help information
+* *-gj* force jbang execution
 * *-gm* force Maven build
 * *-gn* executes nearest build file
 * *-gq* run gm in quiet mode
@@ -75,6 +77,11 @@ $ gm verify
 ----
 
 Which results in the invocation of either *gradlew* or *gradle* with the *build* goal.
+
+.jbang
+
+Gum will execute a given file (local or remote) if explicitly defined, otherwise scans the the current directory and executes the first file with `.java` 
+or `.jsh` that's found.
 
 == Configuration
 

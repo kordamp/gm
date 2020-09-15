@@ -31,6 +31,7 @@ func main() {
 	var args []string
 	gradleBuild, args := gum.GrabFlag("-gg", os.Args[1:])
 	mavenBuild, args := gum.GrabFlag("-gm", args)
+	jbangBuild, args := gum.GrabFlag("-gj", args)
 	quiet, args := gum.GrabFlag("-gq", args)
 	version, args := gum.GrabFlag("-gv", args)
 	help, args := gum.GrabFlag("-gh", args)
@@ -50,6 +51,7 @@ func main() {
 		fmt.Println("  -gd\tdisplays debug information")
 		fmt.Println("  -gg\tforce Gradle build")
 		fmt.Println("  -gh\tdisplays help information")
+		fmt.Println("  -gj\tforce jbang execution")
 		fmt.Println("  -gm\tforce Maven build")
 		fmt.Println("  -gn\texecutes nearest build file")
 		fmt.Println("  -gq\trun gm in quiet mode")
@@ -58,8 +60,19 @@ func main() {
 		os.Exit(0)
 	}
 
-	if gradleBuild && mavenBuild {
-		fmt.Println("You cannot define both -gg and -gm flags at the same time")
+	count := 0
+	if gradleBuild {
+		count = count + 1
+	}
+	if mavenBuild {
+		count = count + 1
+	}
+	if jbangBuild {
+		count = count + 1
+	}
+
+	if count > 1 {
+		fmt.Println("You cannot define -gg, -gm, or -gj flags at the same time")
 		os.Exit(-1)
 	}
 
@@ -69,13 +82,16 @@ func main() {
 	} else if mavenBuild {
 		cmd := gum.FindMaven(gum.NewDefaultContext(quiet, true), args)
 		cmd.Execute()
+	} else if jbangBuild {
+		cmd := gum.FindJbang(gum.NewDefaultContext(quiet, true), args)
+		cmd.Execute()
 	} else {
-		findGradleOrMaven(quiet, args)
+		findTool(quiet, args)
 	}
 }
 
 // Attempts to execute gradlew/gradle first then mvnw/mvn
-func findGradleOrMaven(quiet bool, args []string) {
+func findTool(quiet bool, args []string) {
 	context := gum.NewDefaultContext(quiet, false)
 
 	gradle := gum.FindGradle(context, args)
@@ -90,7 +106,13 @@ func findGradleOrMaven(quiet bool, args []string) {
 		os.Exit(0)
 	}
 
-	fmt.Println("Did not find a Gradle nor Maven project")
+	jbang := gum.FindJbang(context, args)
+	if jbang != nil {
+		jbang.Execute()
+		os.Exit(0)
+	}
+
+	fmt.Println("Did not find a Gradle, Maven, or jbang project")
 	os.Exit(-1)
 }
 

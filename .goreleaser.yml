@@ -49,10 +49,10 @@ snapcrafts:
     grade: stable
     confinement: strict
     publish: true
-    summary: "Gum is a Gradle/Maven wrapper written in Go"
+    summary: "Gum is a Gradle/Maven/jbang wrapper written in Go"
     description: |
-      Gum is a Gradle/Maven wrapper written in Go, inspired in https://github.com/dougborg/gdub and https://github.com/srs/gw.
-      Gum automatically detects if the project is Gradle or Maven based and runs the appropriate command. However in the case
+      Gum is a Gradle/Maven/jbang wrapper written in Go, inspired in https://github.com/dougborg/gdub and https://github.com/srs/gw.
+      Gum automatically detects if the project is Gradle, Maven, or jbang based and runs the appropriate command. However in the case
       that Gum guesses wrong you can force a specific build tool to be used.
 
       **Usage**
@@ -62,6 +62,7 @@ snapcrafts:
       * **-gd** displays debug information
       * **-gg** force Gradle build
       * **-gh** displays help information
+      * **-gj** force jbang execution
       * **-gm** force Maven build
       * **-gn** executes nearest build file
       * **-gq** run gm in quiet mode
@@ -79,5 +80,5 @@ brews:
       name: gum-homebrew-tap
     folder: Formula
     homepage: "https://github.com/kordamp/gm"
-    description: "Gum is a Gradle/Maven wrapper written in Go"
+    description: "Gum is a Gradle/Maven/jbang wrapper written in Go"
     skip_upload: false
