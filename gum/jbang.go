@@ -213,7 +213,7 @@ func isLaunchableSource(source string) bool {
 }
 
 func isLaunchableURL(source string) bool {
-	if strings.HasPrefix(source, "http") {
+	if strings.HasPrefix(source, "http:") || strings.HasPrefix(source, "https:") || strings.HasPrefix(source, "file:") {
 		return true
 	}
 	match, _ := regexp.MatchString(".+@.+", source)
