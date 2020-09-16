@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -211,7 +212,8 @@ func isLaunchableURL(source string) bool {
 	if strings.HasPrefix(source, "http") {
 		return true
 	}
-	return false
+	match, _ := regexp.MatchString(".+@.+", source)
+	return match
 }
 
 func isLaunchableSourceFile(source string) bool {
