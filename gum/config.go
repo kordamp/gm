@@ -74,27 +74,19 @@ func newConfig() *Config {
 }
 
 func (c *Config) setQuiet(b bool) {
-	if b {
-		c.general.quiet = b
-	}
+	c.general.quiet = b
 }
 
 func (c *Config) setDebug(b bool) {
-	if b {
-		c.general.debug = b
-	}
+	c.general.debug = b
 }
 
 func (g *gradle) setReplace(b bool) {
-	if b {
-		g.replace = b
-	}
+	g.replace = b
 }
 
 func (m *maven) setReplace(b bool) {
-	if b {
-		m.replace = b
-	}
+	m.replace = b
 }
 
 func (c *Config) merge(other *Config) {

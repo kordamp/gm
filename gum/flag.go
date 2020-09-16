@@ -44,7 +44,7 @@ func GrabFlag(f string, args []string) (bool, []string) {
 	return false, args
 }
 
-func findFlag(f string, args []string) bool {
+func findFlag(flag string, args []string) bool {
 	if len(args) == 0 {
 		// no args to be checked
 		return false
@@ -52,7 +52,7 @@ func findFlag(f string, args []string) bool {
 
 	for i := range args {
 		s := args[i]
-		if s == f {
+		if flag == s {
 			return true
 		}
 	}

@@ -51,11 +51,14 @@ func (c *GradleCommand) doConfigureGradle() {
 	banner := make([]string, 0)
 	banner = append(banner, "Using gradle at '"+c.executable+"'")
 	nearest, oargs := GrabFlag("-gn", c.args)
+	debugSet := findFlag("-gd", oargs)
 	debug, oargs := GrabFlag("-gd", oargs)
-	replaceSet := findFlag("-gr", args)
+	replaceSet := findFlag("-gr", oargs)
 	skipReplace, oargs := GrabFlag("-gr", oargs)
 
-	c.config.setDebug(debug)
+	if debugSet {
+		c.config.setDebug(debug)
+	}
 	if replaceSet {
 		c.config.gradle.setReplace(!skipReplace)
 	}

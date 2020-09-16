@@ -48,9 +48,13 @@ func (c *JbangCommand) doConfigureJbang() {
 
 	banner := make([]string, 0)
 	banner = append(banner, "Using jbang at '"+c.executable+"'")
+
+	debugSet := findFlag("-gd", c.args)
 	debug, oargs := GrabFlag("-gd", c.args)
 
-	c.config.setDebug(debug)
+	if debugSet {
+		c.config.setDebug(debug)
+	}
 
 	if len(c.explicitSourceFile) > 0 {
 		banner = append(banner, "to run sourceFile '"+c.explicitSourceFile+"':")
