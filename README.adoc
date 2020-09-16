@@ -80,8 +80,8 @@ Which results in the invocation of either *gradlew* or *gradle* with the *build*
 
 .jbang
 
-Gum will execute a given file (local or remote) if explicitly defined, otherwise scans the the current directory and executes the first file with `.java` 
-or `.jsh` that's found.
+Gum will execute a given file (local or remote) if explicitly defined, otherwise scans the the current directory and executes the 
+first file with `.java`,`.jsh`, `.jar` that's found (in that order).
 
 == Configuration
 

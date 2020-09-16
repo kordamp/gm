@@ -57,10 +57,10 @@ func (c *JbangCommand) doConfigureJbang() {
 	}
 
 	if len(c.explicitSourceFile) > 0 {
-		banner = append(banner, "to run sourceFile '"+c.explicitSourceFile+"':")
+		banner = append(banner, "to run '"+c.explicitSourceFile+"':")
 	} else if len(c.sourceFile) > 0 {
 		args = append(args, c.sourceFile)
-		banner = append(banner, "to run sourceFile '"+c.sourceFile+"':")
+		banner = append(banner, "to run '"+c.sourceFile+"':")
 	}
 
 	for i := range oargs {
@@ -209,6 +209,9 @@ func isLaunchableSource(source string) bool {
 	if isLaunchableURL(source) {
 		return true
 	}
+	if isLaunchableDependency(source) {
+		return true
+	}
 	return isLaunchableSourceFile(source)
 }
 
@@ -220,11 +223,18 @@ func isLaunchableURL(source string) bool {
 	return match
 }
 
+func isLaunchableDependency(source string) bool {
+	match, _ := regexp.MatchString(".+:.+:.+", source)
+	return match
+}
+
 func isLaunchableSourceFile(source string) bool {
 	if strings.HasSuffix(source, ".java") {
 		return true
 
 	} else if strings.HasSuffix(source, ".jsh") {
+		return true
+	} else if strings.HasSuffix(source, ".jar") {
 		return true
 	}
 	return false
@@ -242,7 +252,7 @@ func findExplicitJbangSourceFile(pwd string, args []string) (bool, string) {
 	}
 
 	if len(file) > 0 {
-		if isLaunchableURL(file) {
+		if isLaunchableURL(file) || isLaunchableDependency(file) {
 			return true, file
 		} else if isLaunchableSourceFile(file) {
 			if filepath.IsAbs(file) {
