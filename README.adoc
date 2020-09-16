@@ -18,7 +18,7 @@ link:https://golang.org/[Go], inspired in link:https://github.com/dougborg/gdub[
 link:https://github.com/srs/gw[https://github.com/srs/gw].
 
 Gum automatically detects if the project is Gradle, Maven, or jbang based and runs the appropriate command. However in the case that Gum guesses wrong you can 
-force a specific build tool to be used.
+force a specific build tool to be used. Similarly as gdub, Gum lets you invoke either Gradle or Maven from anywhere within the project structure, not just the root directory.
 
 == Usage
 
