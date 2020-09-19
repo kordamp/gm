@@ -84,15 +84,32 @@ func findFlagValue(flag string, args []string) (bool, string) {
 	return false, ""
 }
 
-func replaceArgs(args []string, replacements map[string]string) []string {
+func replaceArgs(args []string, replacements map[string]string, allowsSubMatch bool) []string {
 	nargs := make([]string, 0)
 
 	for i := range args {
 		key := args[i]
-		val := replacements[key]
+		exactMatch := replacements[key]
 
-		if len(val) > 0 {
-			nargs = append(nargs, val)
+		subMatch := ""
+
+		if allowsSubMatch {
+			semicolon := strings.LastIndex(key, ":")
+			if semicolon > -1 {
+				prefix := key[0:(semicolon + 1)]
+				suffix := key[(semicolon + 1):]
+				match := replacements[suffix]
+
+				if len(match) > 0 {
+					subMatch = prefix + match
+				}
+			}
+		}
+
+		if len(exactMatch) > 0 {
+			nargs = append(nargs, exactMatch)
+		} else if allowsSubMatch && len(subMatch) > 0 {
+			nargs = append(nargs, subMatch)
 		} else {
 			nargs = append(nargs, key)
 		}

@@ -356,3 +356,55 @@ func TestGradleWithoutExecutables(t *testing.T) {
 		t.Error("Expected a nil command but got something")
 	}
 }
+
+func TestGradleReplaceWithExactMatch(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "single-with-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindGradle(context, []string{"verify"})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	cmd.doConfigureGradle()
+	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != "build" {
+		t.Errorf("args: got verify, want build")
+	}
+}
+
+func TestGradleReplaceWithSubMatch(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "single-with-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	cmd := FindGradle(context, []string{":subproject:verify"})
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+	}
+
+	cmd.doConfigureGradle()
+	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != ":subproject:build" {
+		t.Errorf("args: got :subproject:verify, want b:subproject:build")
+	}
+}

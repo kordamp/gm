@@ -111,7 +111,7 @@ func replaceMavenGoals(config *Config, args []string) []string {
 	var nargs []string = args
 
 	if config.maven.replace {
-		nargs = replaceArgs(args, config.maven.mappings)
+		nargs = replaceArgs(args, config.maven.mappings, false)
 	}
 
 	return nargs

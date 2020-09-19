@@ -137,7 +137,7 @@ func replaceGradleTasks(config *Config, args []string) []string {
 	var nargs []string = args
 
 	if config.gradle.replace {
-		nargs = replaceArgs(args, config.gradle.mappings)
+		nargs = replaceArgs(args, config.gradle.mappings, true)
 	}
 
 	return nargs
