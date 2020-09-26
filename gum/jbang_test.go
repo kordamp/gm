@@ -34,7 +34,8 @@ func TestJbangJavaWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindJbang(context, []string{"foo"})
+	args := ParseArgs([]string{"foo"})
+	cmd := FindJbang(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -56,7 +57,7 @@ func TestJbangJavaWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureJbang()
-	if len(cmd.args) != 2 {
+	if len(cmd.args.Args) != 2 {
 		t.Errorf("invalid arg count")
 	}
 }
@@ -74,7 +75,8 @@ func TestJbangJavaWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindJbang(context, []string{"foo"})
+	args := ParseArgs([]string{"foo"})
+	cmd := FindJbang(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -109,7 +111,8 @@ func TestJbangJavaWithExplicitFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindJbang(context, []string{"zzz.java", "foo"})
+	args := ParseArgs([]string{"zzz.java", "foo"})
+	cmd := FindJbang(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -144,7 +147,8 @@ func TestJbangJshWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindJbang(context, []string{"foo"})
+	args := ParseArgs([]string{"foo"})
+	cmd := FindJbang(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -166,7 +170,7 @@ func TestJbangJshWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureJbang()
-	if len(cmd.args) != 2 {
+	if len(cmd.args.Args) != 2 {
 		t.Errorf("invalid arg count")
 	}
 }
@@ -184,7 +188,8 @@ func TestJbangJshWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindJbang(context, []string{"foo"})
+	args := ParseArgs([]string{"foo"})
+	cmd := FindJbang(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -219,7 +224,8 @@ func TestJbangJshWithExplicitFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindJbang(context, []string{"zzz.jsh", "foo"})
+	args := ParseArgs([]string{"zzz.jsh", "foo"})
+	cmd := FindJbang(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -253,7 +259,8 @@ func TestJbangWithoutExecutables(t *testing.T) {
 		paths:      []string{}}
 
 	// when:
-	cmd := FindJbang(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindJbang(context, &args)
 
 	// then:
 	if cmd != nil {

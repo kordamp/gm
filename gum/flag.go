@@ -20,49 +20,83 @@ import (
 	"strings"
 )
 
-// GrabFlag finds a boolean flag in the given args, removing it from the slice if found
-func GrabFlag(f string, args []string) (bool, []string) {
+// ParsedArgs captures input args separated by responsibility
+type ParsedArgs struct {
+	Gum  map[string]struct{}
+	Tool []string
+	Args []string
+}
+
+// HasGumFlag finds if a given Gum flag is specified in the parsed args
+func (a *ParsedArgs) HasGumFlag(flag string) bool {
+	_, ok := a.Gum[flag]
+	return ok
+}
+
+var gumFlags = []string{"gd", "gg", "gh", "gj", "gm", "gn", "gq", "gr", "gv"}
+
+// ParseArgs parses input args and separates them between Gum, Tool, and Args
+func ParseArgs(args []string) ParsedArgs {
+	flags := ParsedArgs{
+		Gum:  make(map[string]struct{}, 0),
+		Tool: make([]string, 0),
+		Args: make([]string, 0)}
+
 	if len(args) == 0 {
-		// no args to be checked
-		return false, args
+		return flags
 	}
 
-	for i := range args {
+	// 0 = gum
+	// 1 = tool
+	// 2 = args
+	mode := 0
+
+	for i := 0; i < len(args); i++ {
 		s := args[i]
-		if s == f {
-			newArgs := make([]string, len(args)-1)
-			for j := 0; j < i; j++ {
-				newArgs[j] = args[j]
+
+		switch mode {
+		case 0:
+			if s[0] == '-' && isGumFlag(s) {
+				flags.Gum[s[1:]] = struct{}{}
+			} else {
+				mode = 1
+				i = i - 1
 			}
-			for j := i; j < len(newArgs); j++ {
-				newArgs[j] = args[j+1]
+		case 1:
+			if s[0] == '-' {
+				flags.Tool = append(flags.Tool, s)
+				if strings.Index(s, "=") == -1 {
+					// grab the next value if available
+					j := i + 1
+					if j < len(args) {
+						flags.Tool = append(flags.Tool, args[j])
+						i = j
+					}
+				}
+			} else {
+				mode = 2
+				i = i - 1
 			}
-			return true, newArgs
+		case 2:
+			flags.Args = append(flags.Args, s)
 		}
 	}
 
-	return false, args
+	return flags
 }
 
-func findFlag(flag string, args []string) bool {
-	if len(args) == 0 {
-		// no args to be checked
-		return false
-	}
-
-	for i := range args {
-		s := args[i]
-		if flag == s {
+func isGumFlag(flag string) bool {
+	for i := range gumFlags {
+		if flag[1:] == gumFlags[i] {
 			return true
 		}
 	}
-
 	return false
 }
 
-func findFlagValue(flag string, args []string) (bool, string) {
+func findFlagValue(flag string, args []string) (bool, string, []string) {
 	if len(args) == 0 {
-		return false, ""
+		return false, "", args
 	}
 
 	for i := range args {
@@ -70,18 +104,32 @@ func findFlagValue(flag string, args []string) (bool, string) {
 		if flag == s {
 			// next argument should contain the value we want
 			if i+1 < len(args) {
-				return true, args[i+1]
+				return true, args[i+1], shrinkSlice(args, i, 2)
 			}
-			return false, ""
+			return false, "", args
 		}
 		// check if format is flag=value
 		parts := strings.Split(s, "=")
 		if len(parts) == 2 && parts[0] == flag {
-			return true, parts[1]
+			return true, parts[1], shrinkSlice(args, i, 1)
 		}
 	}
 
-	return false, ""
+	return false, "", args
+}
+
+func shrinkSlice(s []string, index int, length int) []string {
+	shrunk := make([]string, len(s)-length)
+
+	j := 0
+	for i := range s {
+		if i < index || i > index+length {
+			shrunk[j] = s[i]
+			j = j + 1
+		}
+	}
+
+	return shrunk
 }
 
 func replaceArgs(args []string, replacements map[string]string, allowsSubMatch bool) []string {

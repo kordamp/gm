@@ -34,7 +34,8 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindMaven(context, []string{"build"})
+	args := ParseArgs([]string{"build"})
+	cmd := FindMaven(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -57,7 +58,7 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureMaven()
-	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != "verify" {
+	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != "verify" {
 		t.Errorf("args: got build, want verify")
 	}
 }
@@ -75,7 +76,8 @@ func TestMavenSingleWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindMaven(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindMaven(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -111,7 +113,8 @@ func TestMavenParentWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindMaven(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindMaven(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -147,7 +150,8 @@ func TestMavenParentWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindMaven(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindMaven(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -183,7 +187,8 @@ func TestMavenWithExplicitBuildFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindMaven(context, []string{"-f", filepath.Join(pwd, "explicit.xml")})
+	args := ParseArgs([]string{"-f", filepath.Join(pwd, "explicit.xml")})
+	cmd := FindMaven(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -219,7 +224,8 @@ func TestMavenWithNearestBuildFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindMaven(context, []string{"-gn"})
+	args := ParseArgs([]string{"-gn"})
+	cmd := FindMaven(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -254,7 +260,8 @@ func TestMavenWithoutExecutables(t *testing.T) {
 		paths:      []string{}}
 
 	// when:
-	cmd := FindMaven(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindMaven(context, &args)
 
 	// then:
 	if cmd != nil {

@@ -28,13 +28,14 @@ var gmBuildCommit string
 var gmBuildTimestamp string
 
 func main() {
-	var args []string
-	gradleBuild, args := gum.GrabFlag("-gg", os.Args[1:])
-	mavenBuild, args := gum.GrabFlag("-gm", args)
-	jbangBuild, args := gum.GrabFlag("-gj", args)
-	quiet, args := gum.GrabFlag("-gq", args)
-	version, args := gum.GrabFlag("-gv", args)
-	help, args := gum.GrabFlag("-gh", args)
+	args := gum.ParseArgs(os.Args[1:])
+
+	gradleBuild := args.HasGumFlag("gg")
+	mavenBuild := args.HasGumFlag("gm")
+	jbangBuild := args.HasGumFlag("gj")
+	quiet := args.HasGumFlag("gq")
+	version := args.HasGumFlag("gv")
+	help := args.HasGumFlag("gh")
 
 	if version {
 		fmt.Println("------------------------------------------------------------")
@@ -77,21 +78,21 @@ func main() {
 	}
 
 	if gradleBuild {
-		cmd := gum.FindGradle(gum.NewDefaultContext(quiet, true), args)
+		cmd := gum.FindGradle(gum.NewDefaultContext(quiet, true), &args)
 		cmd.Execute()
 	} else if mavenBuild {
-		cmd := gum.FindMaven(gum.NewDefaultContext(quiet, true), args)
+		cmd := gum.FindMaven(gum.NewDefaultContext(quiet, true), &args)
 		cmd.Execute()
 	} else if jbangBuild {
-		cmd := gum.FindJbang(gum.NewDefaultContext(quiet, true), args)
+		cmd := gum.FindJbang(gum.NewDefaultContext(quiet, true), &args)
 		cmd.Execute()
 	} else {
-		findTool(quiet, args)
+		findTool(quiet, &args)
 	}
 }
 
 // Attempts to execute gradlew/gradle first then mvnw/mvn
-func findTool(quiet bool, args []string) {
+func findTool(quiet bool, args *gum.ParsedArgs) {
 	context := gum.NewDefaultContext(quiet, false)
 
 	gradle := gum.FindGradle(context, args)

@@ -34,7 +34,8 @@ func TestGradleSingleWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{"verify"})
+	args := ParseArgs([]string{"verify"})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -60,7 +61,7 @@ func TestGradleSingleWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureGradle()
-	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != "build" {
+	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != "build" {
 		t.Errorf("args: got verify, want build")
 	}
 }
@@ -78,7 +79,8 @@ func TestGradleSingleWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -117,7 +119,8 @@ func TestGradleParentWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -156,7 +159,8 @@ func TestGradleParentWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -195,7 +199,8 @@ func TestGradleWithExplicitBuildFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{"-b", filepath.Join(pwd, "explicit.gradle")})
+	args := ParseArgs([]string{"-b", filepath.Join(pwd, "explicit.gradle")})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -234,7 +239,8 @@ func TestGradleWithExplicitSettingsFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{"-c", filepath.Join(pwd, "..", "settings.gradle")})
+	args := ParseArgs([]string{"-c", filepath.Join(pwd, "..", "settings.gradle")})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -273,7 +279,8 @@ func TestGradleWithExplicitProjectDir(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{"-p", filepath.Join(pwd, "..")})
+	args := ParseArgs([]string{"-p", filepath.Join(pwd, "..")})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -312,7 +319,8 @@ func TestGradleWithNearestBuildFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{"-gn"})
+	args := ParseArgs([]string{"-gn"})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -349,7 +357,8 @@ func TestGradleWithoutExecutables(t *testing.T) {
 		paths:      []string{}}
 
 	// when:
-	cmd := FindGradle(context, []string{})
+	args := ParseArgs([]string{})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd != nil {
@@ -370,7 +379,8 @@ func TestGradleReplaceWithExactMatch(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{"verify"})
+	args := ParseArgs([]string{"verify"})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -378,7 +388,7 @@ func TestGradleReplaceWithExactMatch(t *testing.T) {
 	}
 
 	cmd.doConfigureGradle()
-	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != "build" {
+	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != "build" {
 		t.Errorf("args: got verify, want build")
 	}
 }
@@ -396,7 +406,8 @@ func TestGradleReplaceWithSubMatch(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	cmd := FindGradle(context, []string{":subproject:verify"})
+	args := ParseArgs([]string{":subproject:verify"})
+	cmd := FindGradle(context, &args)
 
 	// then:
 	if cmd == nil {
@@ -404,7 +415,7 @@ func TestGradleReplaceWithSubMatch(t *testing.T) {
 	}
 
 	cmd.doConfigureGradle()
-	if len(cmd.args) != 2 && cmd.args[len(cmd.args)-1] != ":subproject:build" {
+	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != ":subproject:build" {
 		t.Errorf("args: got :subproject:verify, want b:subproject:build")
 	}
 }

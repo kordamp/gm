@@ -30,7 +30,7 @@ type MavenCommand struct {
 	context           Context
 	config            *Config
 	executable        string
-	args              []string
+	args              *ParsedArgs
 	buildFile         string
 	explicitBuildFile string
 	rootBuildFile     string
@@ -47,19 +47,22 @@ func (c *MavenCommand) doConfigureMaven() {
 
 	banner := make([]string, 0)
 	banner = append(banner, "Using maven at '"+c.executable+"'")
-	nearest, oargs := GrabFlag("-gn", c.args)
-	debugSet := findFlag("-gd", oargs)
-	debug, oargs := GrabFlag("-gd", oargs)
-	replaceSet := findFlag("-gr", oargs)
-	skipReplace, oargs := GrabFlag("-gr", oargs)
+	nearest := c.args.HasGumFlag("gn")
+	debug := c.args.HasGumFlag("gd")
+	skipReplace := c.args.HasGumFlag("gr")
 
-	if debugSet {
+	if debug {
 		c.config.setDebug(debug)
 	}
-	if replaceSet {
-		c.config.maven.setReplace(!skipReplace)
+	if skipReplace {
+		c.config.gradle.setReplace(!skipReplace)
 	}
-	rargs := replaceMavenGoals(c.config, oargs)
+	oargs := c.args.Args
+	rargs := replaceMavenGoals(c.config, c.args)
+
+	for i := range c.args.Tool {
+		args = append(args, c.args.Tool[i])
+	}
 
 	if len(c.explicitBuildFile) > 0 {
 		banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
@@ -76,9 +79,9 @@ func (c *MavenCommand) doConfigureMaven() {
 	for i := range rargs {
 		args = append(args, rargs[i])
 	}
-	c.args = args
+	c.args.Args = args
 
-	c.debugMaven(nearest, oargs, rargs, args)
+	c.debugMaven(oargs, rargs)
 
 	if !c.config.general.quiet {
 		fmt.Println(strings.Join(banner, " "))
@@ -86,15 +89,16 @@ func (c *MavenCommand) doConfigureMaven() {
 }
 
 func (c *MavenCommand) doExecuteMaven() {
-	cmd := exec.Command(c.executable, c.args...)
+	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
 }
 
-func (c *MavenCommand) debugMaven(nearest bool, oargs []string, rargs []string, args []string) {
+func (c *MavenCommand) debugMaven(oargs []string, rargs []string) {
 	if c.config.general.debug {
-		fmt.Println("nearest            = ", nearest)
+		fmt.Println("nearest            = ", c.args.HasGumFlag("gn"))
+		fmt.Println("replace            = ", c.args.HasGumFlag("gr"))
 		fmt.Println("rootBuildFile      = ", c.rootBuildFile)
 		fmt.Println("buildFile          = ", c.buildFile)
 		fmt.Println("explicitBuildFile  = ", c.explicitBuildFile)
@@ -102,31 +106,31 @@ func (c *MavenCommand) debugMaven(nearest bool, oargs []string, rargs []string, 
 		if c.config.maven.replace {
 			fmt.Println("replaced args      = ", rargs)
 		}
-		fmt.Println("actual args        = ", args)
+		fmt.Println("actual args        = ", c.args.Args)
 		fmt.Println("")
 	}
 }
 
-func replaceMavenGoals(config *Config, args []string) []string {
-	var nargs []string = args
+func replaceMavenGoals(config *Config, args *ParsedArgs) []string {
+	var nargs []string = []string{}
 
 	if config.maven.replace {
-		nargs = replaceArgs(args, config.maven.mappings, false)
+		nargs = replaceArgs(args.Args, config.maven.mappings, false)
 	}
 
 	return nargs
 }
 
 // FindMaven finds and executes mvnw/mvn
-func FindMaven(context Context, args []string) *MavenCommand {
+func FindMaven(context Context, args *ParsedArgs) *MavenCommand {
 	pwd := context.GetWorkingDir()
 
 	mvnw, noWrapper := findMavenWrapperExec(context, pwd)
 	mvn, noMaven := findMavenExec(context)
 	explicitBuildFileSet, explicitBuildFile := findExplicitMavenBuildFile(args)
 
-	rootBuildFile, noRootBuildFile := findMavenRootFile(context, filepath.Join(pwd, ".."), args)
-	buildFile, noBuildFile := findMavenBuildFile(context, pwd, args)
+	rootBuildFile, noRootBuildFile := findMavenRootFile(context, filepath.Join(pwd, ".."))
+	buildFile, noBuildFile := findMavenBuildFile(context, pwd)
 	rootdir := resolveMavenRootDir(context, explicitBuildFile, buildFile, rootBuildFile)
 	config := ReadConfig(context, rootdir)
 	config.setQuiet(context.IsQuiet())
@@ -239,10 +243,12 @@ func findMavenWrapperExec(context Context, dir string) (string, error) {
 	return findMavenWrapperExec(context, parentdir)
 }
 
-func findExplicitMavenBuildFile(args []string) (bool, string) {
-	found, file := findFlagValue("-f", args)
+func findExplicitMavenBuildFile(args *ParsedArgs) (bool, string) {
+	found, file, shrunkArgs := findFlagValue("-f", args.Tool)
+	args.Tool = shrunkArgs
 	if !found {
-		found, file = findFlagValue("--file", args)
+		found, file, shrunkArgs = findFlagValue("--file", args.Tool)
+		args.Tool = shrunkArgs
 	}
 
 	if found {
@@ -254,7 +260,7 @@ func findExplicitMavenBuildFile(args []string) (bool, string) {
 }
 
 // Finds the nearest pom.xml
-func findMavenBuildFile(context Context, dir string, args []string) (string, error) {
+func findMavenBuildFile(context Context, dir string) (string, error) {
 	parentdir := filepath.Join(dir, "..")
 
 	if parentdir == dir {
@@ -266,11 +272,11 @@ func findMavenBuildFile(context Context, dir string, args []string) (string, err
 		return filepath.Abs(path)
 	}
 
-	return findMavenBuildFile(context, parentdir, args)
+	return findMavenBuildFile(context, parentdir)
 }
 
 // Finds the root pom.xml
-func findMavenRootFile(context Context, dir string, args []string) (string, error) {
+func findMavenRootFile(context Context, dir string) (string, error) {
 	parentdir := filepath.Join(dir, "..")
 
 	if parentdir == dir {
@@ -282,7 +288,7 @@ func findMavenRootFile(context Context, dir string, args []string) (string, erro
 		return filepath.Abs(path)
 	}
 
-	return findMavenRootFile(context, parentdir, args)
+	return findMavenRootFile(context, parentdir)
 }
 
 // Resolves the mvnw executable (OS dependent)

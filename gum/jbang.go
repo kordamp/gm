@@ -32,7 +32,7 @@ type JbangCommand struct {
 	context            Context
 	config             *Config
 	executable         string
-	args               []string
+	args               *ParsedArgs
 	sourceFile         string
 	explicitSourceFile string
 }
@@ -49,11 +49,15 @@ func (c *JbangCommand) doConfigureJbang() {
 	banner := make([]string, 0)
 	banner = append(banner, "Using jbang at '"+c.executable+"'")
 
-	debugSet := findFlag("-gd", c.args)
-	debug, oargs := GrabFlag("-gd", c.args)
+	debug := c.args.HasGumFlag("gd")
 
-	if debugSet {
+	if debug {
 		c.config.setDebug(debug)
+	}
+	oargs := c.args.Args
+
+	for i := range c.args.Tool {
+		args = append(args, c.args.Tool[i])
 	}
 
 	if len(c.explicitSourceFile) > 0 {
@@ -66,9 +70,9 @@ func (c *JbangCommand) doConfigureJbang() {
 	for i := range oargs {
 		args = append(args, oargs[i])
 	}
-	c.args = args
+	c.args.Args = args
 
-	c.debugJbang(oargs, args)
+	c.debugJbang(oargs)
 
 	if !c.config.general.quiet {
 		fmt.Println(strings.Join(banner, " "))
@@ -76,31 +80,31 @@ func (c *JbangCommand) doConfigureJbang() {
 }
 
 func (c *JbangCommand) doExecuteJbang() {
-	cmd := exec.Command(c.executable, c.args...)
+	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
 }
 
-func (c *JbangCommand) debugJbang(oargs []string, args []string) {
+func (c *JbangCommand) debugJbang(oargs []string) {
 	if c.config.general.debug {
 		fmt.Println("sourceFile         = ", c.sourceFile)
 		fmt.Println("explicitSourceFile = ", c.explicitSourceFile)
 		fmt.Println("original args      = ", oargs)
-		fmt.Println("actual args        = ", args)
+		fmt.Println("actual args        = ", c.args.Args)
 		fmt.Println("")
 	}
 }
 
 // FindJbang finds and executes jbang
-func FindJbang(context Context, args []string) *JbangCommand {
+func FindJbang(context Context, args *ParsedArgs) *JbangCommand {
 	pwd := context.GetWorkingDir()
 
 	jbangw, noWrapper := findJbangWrapperExec(context, pwd)
 	jbang, noJbang := findJbangExec(context)
-	explicitSourceFileSet, explicitSourceFile := findExplicitJbangSourceFile(pwd, args)
+	explicitSourceFileSet, explicitSourceFile := findExplicitJbangSourceFile(pwd, args.Args)
 
-	sourceFile, noSourceFile := findJbangSourceFile(context, pwd, args)
+	sourceFile, noSourceFile := findJbangSourceFile(context, pwd, args.Args)
 	rootdir := resolveJbangRootDir(context, explicitSourceFile, sourceFile)
 	config := ReadConfig(context, rootdir)
 	config.setQuiet(context.IsQuiet())
