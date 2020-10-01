@@ -68,7 +68,7 @@ Gum can be used to run Maven and Gradle builds like so:
 $ gm build
 ----
 
-Which results in the invocation of either *mvnw* or *mvn* with the *verify* goal.
+Which results in the invocation of either *mvnw* or *mvn* with the *verify* goal as *build* gets replaced by *verify*.
 
 .Gradle
 [source]
@@ -76,7 +76,7 @@ Which results in the invocation of either *mvnw* or *mvn* with the *verify* goal
 $ gm verify
 ----
 
-Which results in the invocation of either *gradlew* or *gradle* with the *build* goal.
+Which results in the invocation of either *gradlew* or *gradle* with the *build* goal as *verify* gets replaced with *build*.
 
 .jbang
 
@@ -134,6 +134,8 @@ Use the kordamp/homebrew-tap
 ----
 $ brew install kordamp/tap/gum
 ----
+
+Or use the `upgrade` or `reinstall` commands if you had a previous installation of Gum in your system.
 
 === Snapcraft
 
