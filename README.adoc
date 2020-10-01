@@ -1,7 +1,7 @@
 = gum
 :linkattrs:
-:project-owner:   kordamp
-:project-name:    gm
+:project-owner: kordamp
+:project-name:  gm
 
 image:https://github.com/{project-owner}/{project-name}/workflows/Build/badge.svg["Build Status", link="https://github.com/{project-owner}/{project-name}/actions"]
 image:https://goreportcard.com/badge/github.com/{project-owner}/{project-name}["GoReport Card", link="https://goreportcard.com/report/github.com/{project-owner}/{project-name}"]
