@@ -135,7 +135,7 @@ Use the kordamp/homebrew-tap
 $ brew install kordamp/tap/gum
 ----
 
-Or use the `upgrade` or `reinstall` commands if you had a previous installation of Gum in your system.
+Or use the `upgrade` or `reinstall` commands if you have a previous installation of Gum in your system.
 
 === Snapcraft
 
