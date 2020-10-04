@@ -58,6 +58,9 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureMaven()
+	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "pom.xml") {
+		t.Errorf("args: invalid build file")
+	}
 	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != "verify" {
 		t.Errorf("args: got build, want verify")
 	}
@@ -208,6 +211,11 @@ func TestMavenWithExplicitBuildFile(t *testing.T) {
 		if check.actual != check.expected {
 			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
 		}
+	}
+
+	cmd.doConfigureMaven()
+	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "explicit.xml") {
+		t.Errorf("args: invalid build file")
 	}
 }
 

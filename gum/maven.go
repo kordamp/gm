@@ -65,6 +65,8 @@ func (c *MavenCommand) doConfigureMaven() {
 	}
 
 	if len(c.explicitBuildFile) > 0 {
+		args = append(args, "-f")
+		args = append(args, c.explicitBuildFile)
 		banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
 	} else if nearest && len(c.buildFile) > 0 {
 		args = append(args, "-f")
