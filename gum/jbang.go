@@ -22,10 +22,20 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
 )
+
+// JavaExt the .java file extension
+const JavaExt = ".java"
+
+// JshExt the .jsh file extension
+const JshExt = ".jsh"
+
+// JarExt the .jar file extension
+const JarExt = ".jar"
 
 // JbangCommand defines an executable Jbang command
 type JbangCommand struct {
@@ -72,7 +82,7 @@ func (c *JbangCommand) doConfigureJbang() {
 	}
 	c.args.Args = args
 
-	c.debugJbang(oargs)
+	c.debugJbang(c.config, oargs)
 
 	if !c.config.general.quiet {
 		fmt.Println(strings.Join(banner, " "))
@@ -86,8 +96,9 @@ func (c *JbangCommand) doExecuteJbang() {
 	cmd.Run()
 }
 
-func (c *JbangCommand) debugJbang(oargs []string) {
+func (c *JbangCommand) debugJbang(config *Config, oargs []string) {
 	if c.config.general.debug {
+		fmt.Println("discovery          = ", config.jbang.discovery)
 		fmt.Println("sourceFile         = ", c.sourceFile)
 		fmt.Println("explicitSourceFile = ", c.explicitSourceFile)
 		fmt.Println("original args      = ", oargs)
@@ -104,9 +115,10 @@ func FindJbang(context Context, args *ParsedArgs) *JbangCommand {
 	jbang, noJbang := findJbangExec(context)
 	explicitSourceFileSet, explicitSourceFile := findExplicitJbangSourceFile(pwd, args.Args)
 
-	sourceFile, noSourceFile := findJbangSourceFile(context, pwd, args.Args)
+	config := ReadConfig(context, pwd)
+	sourceFile, noSourceFile := findJbangSourceFile(context, pwd, config, args.Args)
 	rootdir := resolveJbangRootDir(context, explicitSourceFile, sourceFile)
-	config := ReadConfig(context, rootdir)
+	config = ReadConfig(context, rootdir)
 	quiet := args.HasGumFlag("gq")
 
 	if quiet {
@@ -237,12 +249,11 @@ func isLaunchableDependency(source string) bool {
 }
 
 func isLaunchableSourceFile(source string) bool {
-	if strings.HasSuffix(source, ".java") {
+	if strings.HasSuffix(source, JavaExt) {
 		return true
-
-	} else if strings.HasSuffix(source, ".jsh") {
+	} else if strings.HasSuffix(source, JshExt) {
 		return true
-	} else if strings.HasSuffix(source, ".jar") {
+	} else if strings.HasSuffix(source, JarExt) {
 		return true
 	}
 	return false
@@ -274,19 +285,67 @@ func findExplicitJbangSourceFile(pwd string, args []string) (bool, string) {
 }
 
 // Finds the nearest source file
-func findJbangSourceFile(context Context, dir string, args []string) (string, error) {
+func findJbangSourceFile(context Context, dir string, config *Config, args []string) (string, error) {
 	files, err := ioutil.ReadDir(dir)
 
 	if err != nil {
 		return "", err
 	}
 
+	choices := make(map[string]string)
+
 	for i := range files {
 		file := files[i]
 		if isLaunchableSourceFile(file.Name()) {
-			f, err := filepath.Abs(file.Name())
-			return filepath.Join(dir, filepath.Base(f)), err
+			extension := path.Ext(file.Name())
+			if extension == "" {
+				continue
+			}
+			_, exists := choices[extension]
+			if !exists {
+				choices[extension] = file.Name()
+			}
 		}
+	}
+
+	var file string
+	exists := false
+	if len(config.jbang.discovery) == 3 {
+		for i := range config.jbang.discovery {
+			choice := strings.TrimSpace(strings.ToLower(config.jbang.discovery[i]))
+
+			switch choice {
+			case "java":
+				file, exists = choices[JavaExt]
+				break
+			case "jsh":
+				file, exists = choices[JshExt]
+				break
+			case "jar":
+				file, exists = choices[JarExt]
+				break
+			default:
+				fmt.Println("Unsupported extension: " + choice)
+				os.Exit(-1)
+			}
+
+			if exists {
+				break
+			}
+		}
+	} else {
+		file, exists = choices[JavaExt]
+		if !exists {
+			file, exists = choices[JshExt]
+		}
+		if !exists {
+			file, exists = choices[JarExt]
+		}
+	}
+
+	if len(file) > 0 {
+		f, err := filepath.Abs(file)
+		return filepath.Join(dir, filepath.Base(f)), err
 	}
 
 	return "", errors.New("Did not find a launchable source")

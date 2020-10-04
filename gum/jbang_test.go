@@ -40,6 +40,7 @@ func TestJbangJavaWithWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -81,6 +82,7 @@ func TestJbangJavaWithoutWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -117,6 +119,7 @@ func TestJbangJavaWithExplicitFile(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -153,6 +156,7 @@ func TestJbangJshWithWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -194,6 +198,7 @@ func TestJbangJshWithoutWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -230,6 +235,7 @@ func TestJbangJshWithExplicitFile(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {

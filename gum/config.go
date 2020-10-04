@@ -30,6 +30,7 @@ type Config struct {
 	general general
 	gradle  gradle
 	maven   maven
+	jbang   jbang
 }
 
 type general struct {
@@ -59,6 +60,10 @@ type maven struct {
 	d tribool.Tribool
 }
 
+type jbang struct {
+	discovery []string
+}
+
 func newConfig() *Config {
 	return &Config{
 		general: general{
@@ -72,7 +77,9 @@ func newConfig() *Config {
 		maven: maven{
 			r:        tribool.Maybe,
 			d:        tribool.Maybe,
-			mappings: make(map[string]string)}}
+			mappings: make(map[string]string)},
+		jbang: jbang{
+			discovery: make([]string, 0)}}
 }
 
 func (c *Config) setQuiet(b bool) {
@@ -96,10 +103,12 @@ func (c *Config) merge(other *Config) {
 		c.general.merge(nil)
 		c.gradle.merge(nil)
 		c.maven.merge(nil)
+		c.jbang.merge(nil)
 	} else {
 		c.general.merge(&other.general)
 		c.gradle.merge(&other.gradle)
 		c.maven.merge(&other.maven)
+		c.jbang.merge(&other.jbang)
 	}
 }
 
@@ -188,6 +197,13 @@ func (m *maven) merge(other *maven) {
 	m.mappings = mp
 }
 
+func (j *jbang) merge(other *jbang) {
+	if len(j.discovery) == 0 && other != nil && len(other.discovery) == 3 {
+		j.discovery = make([]string, 3)
+		copy(j.discovery, other.discovery)
+	}
+}
+
 // ReadUserConfig reads user config
 func ReadUserConfig(context Context) *Config {
 	homedir := context.GetHomeDir()
@@ -232,6 +248,7 @@ func ReadConfigFile(context Context, path string) *Config {
 	resolveSectionGeneral(t, config)
 	resolveSectionGradle(t, config)
 	resolveSectionMaven(t, config)
+	resolveSectionJbang(t, config)
 
 	return config
 }
@@ -299,6 +316,21 @@ func resolveSectionMaven(t *toml.Tree, config *Config) {
 			for i := range m.Keys() {
 				key := m.Keys()[i]
 				config.maven.mappings[key] = m.Get(key).(string)
+			}
+		}
+	}
+}
+
+func resolveSectionJbang(t *toml.Tree, config *Config) {
+	tt := t.Get("jbang")
+	if tt != nil {
+		table := tt.(*toml.Tree)
+		v := table.Get("discovery")
+		if v != nil {
+			data := v.([]interface{})
+			config.jbang.discovery = make([]string, len(data))
+			for i, e := range data {
+				config.jbang.discovery[i] = e.(string)
 			}
 		}
 	}
