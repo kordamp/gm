@@ -24,18 +24,12 @@ import (
 
 // DefaultContext is the Context used by default
 type DefaultContext struct {
-	quiet    bool
 	explicit bool
 }
 
 // NewDefaultContext creates a new DefaultContext with the given state
-func NewDefaultContext(quiet bool, explicit bool) DefaultContext {
-	return DefaultContext{quiet: quiet, explicit: explicit}
-}
-
-// IsQuiet whether Gum should stay silent or not
-func (c DefaultContext) IsQuiet() bool {
-	return c.quiet
+func NewDefaultContext(explicit bool) DefaultContext {
+	return DefaultContext{explicit: explicit}
 }
 
 // IsExplicit whether a given tool was specified

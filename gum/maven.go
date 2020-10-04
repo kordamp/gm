@@ -135,7 +135,11 @@ func FindMaven(context Context, args *ParsedArgs) *MavenCommand {
 	buildFile, noBuildFile := findMavenBuildFile(context, pwd)
 	rootdir := resolveMavenRootDir(context, explicitBuildFile, buildFile, rootBuildFile)
 	config := ReadConfig(context, rootdir)
-	config.setQuiet(context.IsQuiet())
+	quiet := args.HasGumFlag("gq")
+
+	if quiet {
+		config.setQuiet(quiet)
+	}
 
 	var executable string
 	if noWrapper == nil {

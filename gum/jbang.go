@@ -107,7 +107,11 @@ func FindJbang(context Context, args *ParsedArgs) *JbangCommand {
 	sourceFile, noSourceFile := findJbangSourceFile(context, pwd, args.Args)
 	rootdir := resolveJbangRootDir(context, explicitSourceFile, sourceFile)
 	config := ReadConfig(context, rootdir)
-	config.setQuiet(context.IsQuiet())
+	quiet := args.HasGumFlag("gq")
+
+	if quiet {
+		config.setQuiet(quiet)
+	}
 
 	var executable string
 	if noWrapper == nil {

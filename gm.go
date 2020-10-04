@@ -33,7 +33,6 @@ func main() {
 	gradleBuild := args.HasGumFlag("gg")
 	mavenBuild := args.HasGumFlag("gm")
 	jbangBuild := args.HasGumFlag("gj")
-	quiet := args.HasGumFlag("gq")
 	version := args.HasGumFlag("gv")
 	help := args.HasGumFlag("gh")
 
@@ -78,22 +77,22 @@ func main() {
 	}
 
 	if gradleBuild {
-		cmd := gum.FindGradle(gum.NewDefaultContext(quiet, true), &args)
+		cmd := gum.FindGradle(gum.NewDefaultContext(true), &args)
 		cmd.Execute()
 	} else if mavenBuild {
-		cmd := gum.FindMaven(gum.NewDefaultContext(quiet, true), &args)
+		cmd := gum.FindMaven(gum.NewDefaultContext(true), &args)
 		cmd.Execute()
 	} else if jbangBuild {
-		cmd := gum.FindJbang(gum.NewDefaultContext(quiet, true), &args)
+		cmd := gum.FindJbang(gum.NewDefaultContext(true), &args)
 		cmd.Execute()
 	} else {
-		findTool(quiet, &args)
+		findTool(&args)
 	}
 }
 
 // Attempts to execute gradlew/gradle first then mvnw/mvn
-func findTool(quiet bool, args *gum.ParsedArgs) {
-	context := gum.NewDefaultContext(quiet, false)
+func findTool(args *gum.ParsedArgs) {
+	context := gum.NewDefaultContext(false)
 
 	gradle := gum.FindGradle(context, args)
 	if gradle != nil {

@@ -24,9 +24,6 @@ type Command interface {
 
 // Context provides an abstraction over the OS and Environment as required by Gum
 type Context interface {
-	// IsQuiet whether Gum should stay silent or not
-	IsQuiet() bool
-
 	// IsExplicit whether a given tool was specified
 	IsExplicit() bool
 

@@ -27,7 +27,6 @@ func TestLoadConfig(t *testing.T) {
 	root, _ := filepath.Abs(filepath.Join("..", "tests", "toml"))
 
 	context := testContext{
-		quiet:      true,
 		explicit:   true,
 		windows:    false,
 		workingDir: root,

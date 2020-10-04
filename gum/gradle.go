@@ -170,7 +170,11 @@ func FindGradle(context Context, args *ParsedArgs) *GradleCommand {
 	rootBuildFile, noRootBuildFile := findGradleRootFile(context, filepath.Join(pwd, ".."), args, sf)
 	rootdir := resolveGradleRootDir(context, explicitProjectDir, explicitBuildFile, explicitSettingsFile, buildFile, rootBuildFile, settingsFile)
 	config := ReadConfig(context, rootdir)
-	config.setQuiet(context.IsQuiet())
+	quiet := args.HasGumFlag("gq")
+
+	if quiet {
+		config.setQuiet(quiet)
+	}
 
 	var executable string
 	if noWrapper == nil {
