@@ -72,6 +72,8 @@ func (c *GradleCommand) doConfigureGradle() {
 	} else {
 		var buildFileSet bool
 		if len(c.explicitBuildFile) > 0 {
+			args = append(args, "-b")
+			args = append(args, c.explicitBuildFile)
 			banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
 			buildFileSet = true
 		} else if nearest && len(c.buildFile) > 0 {

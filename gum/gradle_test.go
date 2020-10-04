@@ -61,6 +61,9 @@ func TestGradleSingleWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureGradle()
+	if cmd.args.Args[0] != "-b" || cmd.args.Args[1] != filepath.Join(pwd, "build.gradle") {
+		t.Errorf("args: invalid build file")
+	}
 	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != "build" {
 		t.Errorf("args: got verify, want build")
 	}
@@ -223,6 +226,11 @@ func TestGradleWithExplicitBuildFile(t *testing.T) {
 		if check.actual != check.expected {
 			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
 		}
+	}
+
+	cmd.doConfigureGradle()
+	if cmd.args.Args[0] != "-b" || cmd.args.Args[1] != filepath.Join(pwd, "explicit.gradle") {
+		t.Errorf("args: invalid build file")
 	}
 }
 
