@@ -101,6 +101,9 @@ Settings at the project root override those at your home directory. The format i
 quiet = false
 # same as passing -gd
 debug = false
+# tool discovery order
+# default order is the following
+discovery = ["gradle", "maven", "jbang"]
 
 [gradle]
 # if goal/tasks should be replaced, same as passing -gr

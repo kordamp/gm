@@ -33,8 +33,9 @@ type Config struct {
 }
 
 type general struct {
-	quiet bool
-	debug bool
+	quiet     bool
+	debug     bool
+	discovery []string
 
 	q tribool.Tribool
 	d tribool.Tribool
@@ -61,8 +62,9 @@ type maven struct {
 func newConfig() *Config {
 	return &Config{
 		general: general{
-			q: tribool.Maybe,
-			d: tribool.Maybe},
+			q:         tribool.Maybe,
+			d:         tribool.Maybe,
+			discovery: make([]string, 0)},
 		gradle: gradle{
 			r:        tribool.Maybe,
 			d:        tribool.Maybe,
@@ -112,6 +114,10 @@ func (g *general) merge(other *general) {
 		g.debug = g.d.WithMaybeAsFalse()
 	} else {
 		g.debug = other.d.WithMaybeAsFalse()
+	}
+
+	if len(g.discovery) != 3 && other != nil {
+		g.discovery = other.discovery
 	}
 }
 
@@ -182,20 +188,24 @@ func (m *maven) merge(other *maven) {
 	m.mappings = mp
 }
 
-// ReadConfig reads and merges project & user config
-func ReadConfig(context Context, rootdir string) *Config {
+// ReadUserConfig reads user config
+func ReadUserConfig(context Context) *Config {
 	homedir := context.GetHomeDir()
 	tomlfile := filepath.Join(homedir, ".gm.toml")
 	if context.IsWindows() {
 		tomlfile = filepath.Join(homedir, "Gum", "gm.toml")
 	}
 
-	uconfig := ReadConfigFile(context, tomlfile)
+	return ReadConfigFile(context, tomlfile)
+}
 
-	tomlfile = filepath.Join(rootdir, ".gm.toml")
-	pconfig := ReadConfigFile(context, tomlfile)
+// ReadConfig reads and merges project & user config
+func ReadConfig(context Context, rootdir string) *Config {
+	uconfig := ReadUserConfig(context)
+	pconfig := ReadConfigFile(context, filepath.Join(rootdir, ".gm.toml"))
 
 	pconfig.merge(uconfig)
+
 	return pconfig
 }
 
@@ -237,6 +247,14 @@ func resolveSectionGeneral(t *toml.Tree, config *Config) {
 		v = table.Get("debug")
 		if v != nil {
 			config.general.d = tribool.FromBool(v.(bool))
+		}
+		v = table.Get("discovery")
+		if v != nil {
+			data := v.([]interface{})
+			config.general.discovery = make([]string, len(data))
+			for i, e := range data {
+				config.general.discovery[i] = e.(string)
+			}
 		}
 	}
 }

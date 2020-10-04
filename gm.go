@@ -77,43 +77,14 @@ func main() {
 	}
 
 	if gradleBuild {
-		cmd := gum.FindGradle(gum.NewDefaultContext(true), &args)
-		cmd.Execute()
+		gum.FindGradle(gum.NewDefaultContext(true), &args).Execute()
 	} else if mavenBuild {
-		cmd := gum.FindMaven(gum.NewDefaultContext(true), &args)
-		cmd.Execute()
+		gum.FindMaven(gum.NewDefaultContext(true), &args).Execute()
 	} else if jbangBuild {
-		cmd := gum.FindJbang(gum.NewDefaultContext(true), &args)
-		cmd.Execute()
+		gum.FindJbang(gum.NewDefaultContext(true), &args).Execute()
 	} else {
-		findTool(&args)
+		gum.FindTool(&args)
 	}
-}
-
-// Attempts to execute gradlew/gradle first then mvnw/mvn
-func findTool(args *gum.ParsedArgs) {
-	context := gum.NewDefaultContext(false)
-
-	gradle := gum.FindGradle(context, args)
-	if gradle != nil {
-		gradle.Execute()
-		os.Exit(0)
-	}
-
-	maven := gum.FindMaven(context, args)
-	if maven != nil {
-		maven.Execute()
-		os.Exit(0)
-	}
-
-	jbang := gum.FindJbang(context, args)
-	if jbang != nil {
-		jbang.Execute()
-		os.Exit(0)
-	}
-
-	fmt.Println("Did not find a Gradle, Maven, or jbang project")
-	os.Exit(-1)
 }
 
 func normalize(s string) string {
