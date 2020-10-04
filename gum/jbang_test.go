@@ -34,7 +34,7 @@ func TestJbangJavaWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"foo"})
+	args := ParseArgs([]string{"-gq", "foo"})
 	cmd := FindJbang(context, &args)
 
 	// then:
@@ -75,7 +75,7 @@ func TestJbangJavaWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"foo"})
+	args := ParseArgs([]string{"-gq", "foo"})
 	cmd := FindJbang(context, &args)
 
 	// then:
@@ -111,7 +111,7 @@ func TestJbangJavaWithExplicitFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"zzz.java", "foo"})
+	args := ParseArgs([]string{"-gq", "zzz.java", "foo"})
 	cmd := FindJbang(context, &args)
 
 	// then:
@@ -147,7 +147,7 @@ func TestJbangJshWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"foo"})
+	args := ParseArgs([]string{"-gq", "foo"})
 	cmd := FindJbang(context, &args)
 
 	// then:
@@ -188,7 +188,7 @@ func TestJbangJshWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"foo"})
+	args := ParseArgs([]string{"-gq", "foo"})
 	cmd := FindJbang(context, &args)
 
 	// then:
@@ -224,7 +224,7 @@ func TestJbangJshWithExplicitFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"zzz.jsh", "foo"})
+	args := ParseArgs([]string{"-gq", "zzz.jsh", "foo"})
 	cmd := FindJbang(context, &args)
 
 	// then:
@@ -259,7 +259,7 @@ func TestJbangWithoutExecutables(t *testing.T) {
 		paths:      []string{}}
 
 	// when:
-	args := ParseArgs([]string{})
+	args := ParseArgs([]string{"-gq"})
 	cmd := FindJbang(context, &args)
 
 	// then:

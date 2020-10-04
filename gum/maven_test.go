@@ -34,7 +34,7 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"build"})
+	args := ParseArgs([]string{"-gq", "build"})
 	cmd := FindMaven(context, &args)
 
 	// then:
@@ -79,7 +79,7 @@ func TestMavenSingleWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{})
+	args := ParseArgs([]string{"-gq"})
 	cmd := FindMaven(context, &args)
 
 	// then:
@@ -116,7 +116,7 @@ func TestMavenParentWithWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{})
+	args := ParseArgs([]string{"-gq"})
 	cmd := FindMaven(context, &args)
 
 	// then:
@@ -153,7 +153,7 @@ func TestMavenParentWithoutWrapper(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{})
+	args := ParseArgs([]string{"-gq"})
 	cmd := FindMaven(context, &args)
 
 	// then:
@@ -190,7 +190,7 @@ func TestMavenWithExplicitBuildFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"-f", filepath.Join(pwd, "explicit.xml")})
+	args := ParseArgs([]string{"-gq", "-f", filepath.Join(pwd, "explicit.xml")})
 	cmd := FindMaven(context, &args)
 
 	// then:
@@ -232,7 +232,7 @@ func TestMavenWithNearestBuildFile(t *testing.T) {
 		paths:      []string{bin}}
 
 	// when:
-	args := ParseArgs([]string{"-gn"})
+	args := ParseArgs([]string{"-gq", "-gn"})
 	cmd := FindMaven(context, &args)
 
 	// then:
@@ -268,7 +268,7 @@ func TestMavenWithoutExecutables(t *testing.T) {
 		paths:      []string{}}
 
 	// when:
-	args := ParseArgs([]string{})
+	args := ParseArgs([]string{"-gq"})
 	cmd := FindMaven(context, &args)
 
 	// then:
