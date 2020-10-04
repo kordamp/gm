@@ -40,6 +40,7 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -85,6 +86,7 @@ func TestMavenSingleWithoutWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -122,6 +124,7 @@ func TestMavenParentWithWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -159,6 +162,7 @@ func TestMavenParentWithoutWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -196,6 +200,7 @@ func TestMavenWithExplicitBuildFile(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -238,6 +243,7 @@ func TestMavenWithNearestBuildFile(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {

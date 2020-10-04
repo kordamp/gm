@@ -40,6 +40,7 @@ func TestGradleSingleWithWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -88,6 +89,7 @@ func TestGradleSingleWithoutWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -128,6 +130,7 @@ func TestGradleParentWithWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -168,6 +171,7 @@ func TestGradleParentWithoutWrapper(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -208,6 +212,7 @@ func TestGradleWithExplicitBuildFile(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -253,6 +258,7 @@ func TestGradleWithExplicitSettingsFile(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -293,6 +299,7 @@ func TestGradleWithExplicitProjectDir(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -333,6 +340,7 @@ func TestGradleWithNearestBuildFile(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	var checks = []struct {
@@ -393,6 +401,7 @@ func TestGradleReplaceWithExactMatch(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	cmd.doConfigureGradle()
@@ -420,6 +429,7 @@ func TestGradleReplaceWithSubMatch(t *testing.T) {
 	// then:
 	if cmd == nil {
 		t.Error("Expected a command but got nil")
+		return
 	}
 
 	cmd.doConfigureGradle()
