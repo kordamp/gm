@@ -60,8 +60,10 @@ func (c *MavenCommand) doConfigureMaven() {
 	oargs := c.args.Args
 	rargs := replaceMavenGoals(c.config, c.args)
 
-	for i := range c.args.Tool {
-		args = append(args, c.args.Tool[i])
+	for _, e := range c.args.Tool {
+		if len(e) > 0 {
+			args = append(args, e)
+		}
 	}
 
 	if len(c.explicitBuildFile) > 0 {
@@ -78,8 +80,10 @@ func (c *MavenCommand) doConfigureMaven() {
 		banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
 	}
 
-	for i := range rargs {
-		args = append(args, rargs[i])
+	for _, e := range rargs {
+		if len(e) > 0 {
+			args = append(args, e)
+		}
 	}
 	c.args.Args = args
 

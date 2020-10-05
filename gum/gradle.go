@@ -63,8 +63,10 @@ func (c *GradleCommand) doConfigureGradle() {
 	oargs := c.args.Args
 	rargs := replaceGradleTasks(c.config, c.args)
 
-	for i := range c.args.Tool {
-		args = append(args, c.args.Tool[i])
+	for _, e := range c.args.Tool {
+		if len(e) > 0 {
+			args = append(args, e)
+		}
 	}
 
 	if len(c.explicitProjectDir) > 0 {
@@ -101,8 +103,10 @@ func (c *GradleCommand) doConfigureGradle() {
 		}
 	}
 
-	for i := range rargs {
-		args = append(args, rargs[i])
+	for _, e := range rargs {
+		if len(e) > 0 {
+			args = append(args, e)
+		}
 	}
 	c.args.Args = args
 
