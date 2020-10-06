@@ -118,13 +118,11 @@ func (c *MavenCommand) debugMaven(oargs []string, rargs []string) {
 }
 
 func replaceMavenGoals(config *Config, args *ParsedArgs) []string {
-	var nargs []string = []string{}
-
 	if config.maven.replace {
-		nargs = replaceArgs(args.Args, config.maven.mappings, false)
+		return replaceArgs(args.Args, config.maven.mappings, false)
 	}
 
-	return nargs
+	return args.Args
 }
 
 // FindMaven finds and executes mvnw/mvn
