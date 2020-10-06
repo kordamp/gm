@@ -32,6 +32,7 @@ type GradleCommand struct {
 	executable           string
 	args                 *ParsedArgs
 	explicitProjectDir   string
+	rootDir              string
 	buildFile            string
 	explicitBuildFile    string
 	rootBuildFile        string
@@ -95,8 +96,14 @@ func (c *GradleCommand) doConfigureGradle() {
 				banner = append(banner, "with settings at '"+c.explicitSettingsFile+"':")
 			}
 		} else if len(c.settingsFile) > 0 {
-			args = append(args, "-c")
-			args = append(args, c.settingsFile)
+			pwd, _ := filepath.Abs(c.context.GetWorkingDir())
+			settingsDir, _ := filepath.Abs(filepath.Dir(c.settingsFile))
+
+			if c.rootDir != settingsDir || c.rootDir != pwd {
+				args = append(args, "-c")
+				args = append(args, c.settingsFile)
+			}
+
 			if !buildFileSet {
 				banner = append(banner, "with settings at '"+c.settingsFile+"':")
 			}
@@ -201,6 +208,7 @@ func FindGradle(context Context, args *ParsedArgs) *GradleCommand {
 			config:             config,
 			executable:         executable,
 			args:               args,
+			rootDir:            rootdir,
 			explicitProjectDir: explicitProjectDir}
 	}
 
@@ -211,6 +219,7 @@ func FindGradle(context Context, args *ParsedArgs) *GradleCommand {
 				config:               config,
 				executable:           executable,
 				args:                 args,
+				rootDir:              rootdir,
 				explicitBuildFile:    explicitBuildFile,
 				explicitSettingsFile: explicitSettingsFile}
 		}
@@ -219,6 +228,7 @@ func FindGradle(context Context, args *ParsedArgs) *GradleCommand {
 			config:            config,
 			executable:        executable,
 			args:              args,
+			rootDir:           rootdir,
 			explicitBuildFile: explicitBuildFile,
 			settingsFile:      settingsFile}
 	}
@@ -238,6 +248,7 @@ func FindGradle(context Context, args *ParsedArgs) *GradleCommand {
 				config:               config,
 				executable:           executable,
 				args:                 args,
+				rootDir:              rootdir,
 				buildFile:            buildFile,
 				rootBuildFile:        rootBuildFile,
 				explicitSettingsFile: explicitSettingsFile}
@@ -261,6 +272,7 @@ func FindGradle(context Context, args *ParsedArgs) *GradleCommand {
 		config:               config,
 		executable:           executable,
 		args:                 args,
+		rootDir:              rootdir,
 		buildFile:            buildFile,
 		rootBuildFile:        rootBuildFile,
 		settingsFile:         settingsFile,
@@ -286,7 +298,9 @@ func resolveGradleRootDir(context Context,
 	} else if context.FileExists(settingsFile) {
 		return filepath.Dir(settingsFile)
 	}
-	return filepath.Dir(buildFile)
+
+	dir, _ := filepath.Abs(filepath.Dir(buildFile))
+	return dir
 }
 
 func resolveGradleWrapperExecutable(context Context, args *ParsedArgs) (string, error) {

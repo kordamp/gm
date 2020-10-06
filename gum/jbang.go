@@ -103,6 +103,7 @@ func (c *JbangCommand) doExecuteJbang() {
 func (c *JbangCommand) debugJbang(config *Config, oargs []string) {
 	if c.config.general.debug {
 		fmt.Println("discovery          = ", config.jbang.discovery)
+		fmt.Println("pwd                = ", c.context.GetWorkingDir())
 		fmt.Println("sourceFile         = ", c.sourceFile)
 		fmt.Println("explicitSourceFile = ", c.explicitSourceFile)
 		fmt.Println("original args      = ", oargs)
