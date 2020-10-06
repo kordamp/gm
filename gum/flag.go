@@ -86,8 +86,8 @@ func ParseArgs(args []string) ParsedArgs {
 }
 
 func isGumFlag(flag string) bool {
-	for i := range gumFlags {
-		if flag[1:] == gumFlags[i] {
+	for _, f := range gumFlags {
+		if flag[1:] == f {
 			return true
 		}
 	}
@@ -99,8 +99,7 @@ func findFlagValue(flag string, args []string) (bool, string, []string) {
 		return false, "", args
 	}
 
-	for i := range args {
-		s := args[i]
+	for i, s := range args {
 		if flag == s {
 			// next argument should contain the value we want
 			if i+1 < len(args) {
@@ -122,9 +121,9 @@ func shrinkSlice(s []string, index int, length int) []string {
 	shrunk := make([]string, len(s)-length)
 
 	j := 0
-	for i := range s {
-		if i < index || i > index+length {
-			shrunk[j] = s[i]
+	for i, e := range s {
+		if i < index || i >= index+length {
+			shrunk[j] = e
 			j = j + 1
 		}
 	}
@@ -135,8 +134,7 @@ func shrinkSlice(s []string, index int, length int) []string {
 func replaceArgs(args []string, replacements map[string]string, allowsSubMatch bool) []string {
 	nargs := make([]string, 0)
 
-	for i := range args {
-		key := args[i]
+	for _, key := range args {
 		exactMatch := replacements[key]
 
 		subMatch := ""
