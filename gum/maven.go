@@ -104,7 +104,8 @@ func (c *MavenCommand) doExecuteMaven() {
 func (c *MavenCommand) debugMaven(oargs []string, rargs []string) {
 	if c.config.general.debug {
 		fmt.Println("nearest            = ", c.args.HasGumFlag("gn"))
-		fmt.Println("replace            = ", c.args.HasGumFlag("gr"))
+		fmt.Println("replace            = ", c.config.maven.replace)
+		fmt.Println("pwd                = ", c.context.GetWorkingDir())
 		fmt.Println("rootBuildFile      = ", c.rootBuildFile)
 		fmt.Println("buildFile          = ", c.buildFile)
 		fmt.Println("explicitBuildFile  = ", c.explicitBuildFile)
