@@ -127,7 +127,9 @@ func (c *GradleCommand) doExecuteGradle() {
 func (c *GradleCommand) debugGradle(oargs []string, rargs []string) {
 	if c.config.general.debug {
 		fmt.Println("nearest              = ", c.args.HasGumFlag("gn"))
-		fmt.Println("replace              = ", c.args.HasGumFlag("gr"))
+		fmt.Println("replace              = ", c.config.gradle.replace)
+		fmt.Println("pwd                  = ", c.context.GetWorkingDir())
+		fmt.Println("rootDir              = ", c.rootDir)
 		fmt.Println("rootBuildFile        = ", c.rootBuildFile)
 		fmt.Println("buildFile            = ", c.buildFile)
 		fmt.Println("settingsFile         = ", c.settingsFile)
