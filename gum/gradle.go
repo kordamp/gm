@@ -144,13 +144,11 @@ func (c *GradleCommand) debugGradle(oargs []string, rargs []string) {
 }
 
 func replaceGradleTasks(config *Config, args *ParsedArgs) []string {
-	var nargs []string = []string{}
-
 	if config.gradle.replace {
-		nargs = replaceArgs(args.Args, config.gradle.mappings, true)
+		return replaceArgs(args.Args, config.gradle.mappings, true)
 	}
 
-	return nargs
+	return args.Args
 }
 
 // FindGradle finds and executes gradlew/gradle
