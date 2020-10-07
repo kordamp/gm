@@ -64,12 +64,6 @@ func (c *GradleCommand) doConfigureGradle() {
 	oargs := c.args.Args
 	rargs := replaceGradleTasks(c.config, c.args)
 
-	for _, e := range c.args.Tool {
-		if len(e) > 0 {
-			args = append(args, e)
-		}
-	}
-
 	if len(c.explicitProjectDir) > 0 {
 		banner = append(banner, "to run project at '"+c.explicitProjectDir+"':")
 	} else {
@@ -107,6 +101,12 @@ func (c *GradleCommand) doConfigureGradle() {
 			if !buildFileSet {
 				banner = append(banner, "with settings at '"+c.settingsFile+"':")
 			}
+		}
+	}
+
+	for _, e := range c.args.Tool {
+		if len(e) > 0 {
+			args = append(args, e)
 		}
 	}
 
