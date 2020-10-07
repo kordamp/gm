@@ -105,18 +105,8 @@ func (c *GradleCommand) doConfigureGradle() {
 		}
 	}
 
-	for _, e := range c.args.Tool {
-		if len(e) > 0 {
-			args = append(args, e)
-		}
-	}
-
-	for _, e := range rargs {
-		if len(e) > 0 {
-			args = append(args, e)
-		}
-	}
-	c.args.Args = args
+	args = appendSafe(args, c.args.Tool)
+	c.args.Args = appendSafe(args, rargs)
 
 	c.debugGradle(oargs, rargs)
 

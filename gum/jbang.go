@@ -67,11 +67,7 @@ func (c *JbangCommand) doConfigureJbang() {
 	c.debugConfig()
 	oargs := c.args.Args
 
-	for _, e := range c.args.Tool {
-		if len(e) > 0 {
-			args = append(args, e)
-		}
-	}
+	args = appendSafe(args, c.args.Tool)
 
 	if len(c.explicitSourceFile) > 0 {
 		banner = append(banner, "to run '"+c.explicitSourceFile+"':")
@@ -80,12 +76,7 @@ func (c *JbangCommand) doConfigureJbang() {
 		banner = append(banner, "to run '"+c.sourceFile+"':")
 	}
 
-	for _, e := range oargs {
-		if len(e) > 0 {
-			args = append(args, e)
-		}
-	}
-	c.args.Args = args
+	c.args.Args = appendSafe(args, oargs)
 
 	c.debugJbang(c.config, oargs)
 
