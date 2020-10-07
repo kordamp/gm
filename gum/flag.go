@@ -69,8 +69,12 @@ func ParseArgs(args []string) ParsedArgs {
 					// grab the next value if available
 					j := i + 1
 					if j < len(args) {
-						flags.Tool = append(flags.Tool, args[j])
-						i = j
+						arg := args[j]
+						// add it only if it's not another flag
+						if arg[0] != '-' {
+							flags.Tool = append(flags.Tool, arg)
+							i = j
+						}
 					}
 				}
 			} else {
