@@ -26,6 +26,7 @@ import (
 func FindTool(args *ParsedArgs) {
 	context := NewDefaultContext(false)
 	config := ReadUserConfig(context)
+	config.merge(nil)
 
 	if len(config.general.discovery) == 3 {
 		discoverTool(config, context, args)
@@ -35,8 +36,13 @@ func FindTool(args *ParsedArgs) {
 	doFindMaven(context, args)
 	doFindJbang(context, args)
 
-	fmt.Println("Did not find a Gradle, Maven, or jbang project")
-	os.Exit(-1)
+	if args.HasGumFlag("gc") {
+		config.print()
+		os.Exit(0)
+	} else {
+		fmt.Println("Did not find a Gradle, Maven, or jbang project")
+		os.Exit(-1)
+	}
 }
 
 func discoverTool(config *Config, context Context, args *ParsedArgs) {

@@ -64,6 +64,7 @@ func (c *JbangCommand) doConfigureJbang() {
 	if debug {
 		c.config.setDebug(debug)
 	}
+	c.debugConfig()
 	oargs := c.args.Args
 
 	for _, e := range c.args.Tool {
@@ -98,6 +99,13 @@ func (c *JbangCommand) doExecuteJbang() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+}
+
+func (c *JbangCommand) debugConfig() {
+	if c.args.HasGumFlag("gc") {
+		c.config.print()
+		os.Exit(0)
+	}
 }
 
 func (c *JbangCommand) debugJbang(config *Config, oargs []string) {

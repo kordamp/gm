@@ -57,6 +57,7 @@ func (c *MavenCommand) doConfigureMaven() {
 	if skipReplace {
 		c.config.gradle.setReplace(!skipReplace)
 	}
+	c.debugConfig()
 	oargs := c.args.Args
 	rargs := replaceMavenGoals(c.config, c.args)
 
@@ -99,6 +100,13 @@ func (c *MavenCommand) doExecuteMaven() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+}
+
+func (c *MavenCommand) debugConfig() {
+	if c.args.HasGumFlag("gc") {
+		c.config.print()
+		os.Exit(0)
+	}
 }
 
 func (c *MavenCommand) debugMaven(oargs []string, rargs []string) {

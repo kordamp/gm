@@ -48,6 +48,7 @@ func main() {
 
 	if help {
 		fmt.Println("Usage of gm:")
+		fmt.Println("  -gc\tdisplays current configuration and quits")
 		fmt.Println("  -gd\tdisplays debug information")
 		fmt.Println("  -gg\tforce Gradle build")
 		fmt.Println("  -gh\tdisplays help information")

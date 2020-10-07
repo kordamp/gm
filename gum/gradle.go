@@ -61,6 +61,7 @@ func (c *GradleCommand) doConfigureGradle() {
 	if skipReplace {
 		c.config.gradle.setReplace(!skipReplace)
 	}
+	c.debugConfig()
 	oargs := c.args.Args
 	rargs := replaceGradleTasks(c.config, c.args)
 
@@ -129,6 +130,13 @@ func (c *GradleCommand) doExecuteGradle() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+}
+
+func (c *GradleCommand) debugConfig() {
+	if c.args.HasGumFlag("gc") {
+		c.config.print()
+		os.Exit(0)
+	}
 }
 
 func (c *GradleCommand) debugGradle(oargs []string, rargs []string) {

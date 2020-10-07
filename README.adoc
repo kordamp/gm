@@ -24,6 +24,7 @@ force a specific build tool to be used. Similarly as gdub, Gum lets you invoke e
 
 Gum supports the following flags
 
+* *-gc* displays current configuration and quits
 * *-gd* displays debug information
 * *-gg* force Gradle build
 * *-gh* displays help information

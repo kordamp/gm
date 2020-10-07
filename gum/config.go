@@ -17,9 +17,11 @@
 package gum
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"github.com/grignaak/tribool"
 	"github.com/pelletier/go-toml"
@@ -62,6 +64,60 @@ type maven struct {
 
 type jbang struct {
 	discovery []string
+}
+
+func (c *Config) print() {
+	fmt.Println("[general]")
+	fmt.Println("quiet =", c.general.quiet)
+	fmt.Println("debug =", c.general.debug)
+	fmt.Println("discovery =", formatSlice(c.general.discovery))
+	fmt.Println("")
+	fmt.Println("[gradle]")
+	fmt.Println("replace =", c.gradle.replace)
+	fmt.Println("defaults =", c.gradle.defaults)
+	if len(c.gradle.mappings) > 0 {
+		fmt.Println("[gradle.mappings]")
+		printMappings(c.gradle.mappings)
+	}
+	fmt.Println("")
+	fmt.Println("[maven]")
+	fmt.Println("replace =", c.maven.replace)
+	fmt.Println("defaults =", c.maven.defaults)
+	if len(c.maven.mappings) > 0 {
+		fmt.Println("[maven.mappings]")
+		printMappings(c.maven.mappings)
+	}
+	fmt.Println("")
+	fmt.Println("[jbang]")
+	fmt.Println("discovery =", formatSlice(c.jbang.discovery))
+}
+
+func formatSlice(s []string) string {
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+
+	for i, w := range s {
+		if i != 0 {
+			buffer.WriteString(", ")
+		}
+		buffer.WriteString("\"")
+		buffer.WriteString(w)
+		buffer.WriteString("\"")
+	}
+
+	buffer.WriteString("]")
+	return buffer.String()
+}
+
+func printMappings(mappings map[string]string) {
+	for k, v := range mappings {
+		if strings.Contains(k, ":") {
+			fmt.Print("\"" + k + "\"")
+		} else {
+			fmt.Print(k)
+		}
+		fmt.Println(" = \"" + v + "\"")
+	}
 }
 
 func newConfig() *Config {
@@ -113,13 +169,13 @@ func (c *Config) merge(other *Config) {
 }
 
 func (g *general) merge(other *general) {
-	if g.q != tribool.Maybe {
+	if g.q != tribool.Maybe || other == nil {
 		g.quiet = g.q.WithMaybeAsFalse()
-	} else {
+	} else if other != nil {
 		g.quiet = other.q.WithMaybeAsFalse()
 	}
 
-	if g.d != tribool.Maybe {
+	if g.d != tribool.Maybe || other == nil {
 		g.debug = g.d.WithMaybeAsFalse()
 	} else {
 		g.debug = other.d.WithMaybeAsFalse()
@@ -131,14 +187,14 @@ func (g *general) merge(other *general) {
 }
 
 func (g *gradle) merge(other *gradle) {
-	if g.r != tribool.Maybe {
-		g.replace = g.r.WithMaybeAsFalse()
+	if g.r != tribool.Maybe || other == nil {
+		g.replace = g.r.WithMaybeAsTrue()
 	} else {
 		g.replace = other.r.WithMaybeAsTrue()
 	}
 
-	if g.d != tribool.Maybe {
-		g.defaults = g.d.WithMaybeAsFalse()
+	if g.d != tribool.Maybe || other == nil {
+		g.defaults = g.d.WithMaybeAsTrue()
 	} else {
 		g.defaults = other.d.WithMaybeAsTrue()
 	}
@@ -153,8 +209,10 @@ func (g *gradle) merge(other *gradle) {
 			"exec:java":       "run",
 			"dependency:tree": "dependencies"}
 	}
-	for k, v := range other.mappings {
-		mp[k] = v
+	if other != nil {
+		for k, v := range other.mappings {
+			mp[k] = v
+		}
 	}
 	for k, v := range g.mappings {
 		mp[k] = v
@@ -163,14 +221,14 @@ func (g *gradle) merge(other *gradle) {
 }
 
 func (m *maven) merge(other *maven) {
-	if m.r != tribool.Maybe {
-		m.replace = m.r.WithMaybeAsFalse()
+	if m.r != tribool.Maybe || other == nil {
+		m.replace = m.r.WithMaybeAsTrue()
 	} else {
 		m.replace = other.r.WithMaybeAsTrue()
 	}
 
-	if m.d != tribool.Maybe {
-		m.defaults = m.d.WithMaybeAsFalse()
+	if m.d != tribool.Maybe || other == nil {
+		m.defaults = m.d.WithMaybeAsTrue()
 	} else {
 		m.defaults = other.d.WithMaybeAsTrue()
 	}
@@ -188,8 +246,10 @@ func (m *maven) merge(other *maven) {
 			"run":                 "exec:java",
 			"dependencies":        "dependency:tree"}
 	}
-	for k, v := range other.mappings {
-		mp[k] = v
+	if other != nil {
+		for k, v := range other.mappings {
+			mp[k] = v
+		}
 	}
 	for k, v := range m.mappings {
 		mp[k] = v
