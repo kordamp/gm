@@ -329,26 +329,36 @@ func resolveSectionTheme(t *toml.Tree, config *Config) {
 		if v != nil {
 			data := v.([]interface{})
 			config.theme.symbol = [2]uint8{uint8(data[0].(int64)), uint8(data[1].(int64))}
+		} else {
+			config.theme.symbol = [2]uint8{125, 0}
 		}
 		v = table.Get("section")
 		if v != nil {
 			data := v.([]interface{})
 			config.theme.section = [2]uint8{uint8(data[0].(int64)), uint8(data[1].(int64))}
+		} else {
+			config.theme.symbol = [2]uint8{47, 0}
 		}
 		v = table.Get("key")
 		if v != nil {
 			data := v.([]interface{})
 			config.theme.key = [2]uint8{uint8(data[0].(int64)), uint8(data[1].(int64))}
+		} else {
+			config.theme.symbol = [2]uint8{130, 0}
 		}
 		v = table.Get("boolean")
 		if v != nil {
 			data := v.([]interface{})
 			config.theme.boolean = [2]uint8{uint8(data[0].(int64)), uint8(data[1].(int64))}
+		} else {
+			config.theme.symbol = [2]uint8{200, 0}
 		}
 		v = table.Get("literal")
 		if v != nil {
 			data := v.([]interface{})
 			config.theme.literal = [2]uint8{uint8(data[0].(int64)), uint8(data[1].(int64))}
+		} else {
+			config.theme.symbol = [2]uint8{23, 0}
 		}
 	}
 

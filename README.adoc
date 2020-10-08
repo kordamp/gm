@@ -97,6 +97,20 @@ Settings at the project root override those at your home directory. The format i
 [source,toml]
 .gm.toml
 ----
+[theme]
+# valid values are [none, dark, light, custom]
+name = "dark"
+# if name = custom then you must define the following 5 entries
+# color values follow https://github.com/gookit/color#use-a-256-color-style
+# color values must be between 0 and 255
+# first value is foreground
+# second value is background
+symbol = [125, 0]
+section = [47, 0]
+key = [130, 0]
+boolean = [200, 0]
+literal = [23, 0]
+
 [general]
 # same as passing -gq
 quiet = false
