@@ -59,6 +59,10 @@ func TestLoadConfig(t *testing.T) {
 		}
 	}
 
+	if config.theme.name != "dark" {
+		t.Errorf("theme.name: got %s, want dark", config.theme.name)
+	}
+
 	if config.gradle.mappings["compile"] != "compileJava" {
 		t.Errorf("gradle.mappings.compileJava: got %s, want %s", config.gradle.mappings["compile"], "compileJava")
 	}

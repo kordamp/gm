@@ -16,6 +16,8 @@
 
 package gum
 
+import "reflect"
+
 func appendSafe(dst []string, src []string) []string {
 	for _, e := range src {
 		if len(e) > 0 {
@@ -23,4 +25,8 @@ func appendSafe(dst []string, src []string) []string {
 		}
 	}
 	return dst
+}
+
+func isInstanceOf(objectPtr, typePtr interface{}) bool {
+	return reflect.TypeOf(objectPtr) == reflect.TypeOf(typePtr)
 }

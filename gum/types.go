@@ -45,3 +45,24 @@ type Context interface {
 	// Exit causes the current program to exit with the given status code.
 	Exit(code int)
 }
+
+// Theme defines a console theme for printing messages
+type Theme interface {
+	// PrintSection prints a section header such as [section]
+	PrintSection(section string)
+
+	// PrintKeyValueBoolean prints a key/value pair as key = value
+	PrintKeyValueBoolean(key string, value bool)
+
+	// PrintKeyValueLiteral prints a key/value pair as key = "value"
+	PrintKeyValueLiteral(key string, value string)
+
+	// PrintKeyValueArrayS prints a key/value pair as key = ["v1", "v2"]
+	PrintKeyValueArrayS(key string, value []string)
+
+	// PrintKeyValueArrayI prints a key/value pair as key = [i1, i2]
+	PrintKeyValueArrayI(key string, value [2]uint8)
+
+	// PrintMap prints a map with each entry as key = "value"
+	PrintMap(value map[string]string)
+}
