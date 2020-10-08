@@ -60,6 +60,7 @@ snapcrafts:
 
       Gum supports the following flags
 
+      * **-gc** displays current configuration and quits
       * **-gd** displays debug information
       * **-gg** force Gradle build
       * **-gh** displays help information
