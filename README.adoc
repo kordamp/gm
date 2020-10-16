@@ -8,7 +8,7 @@ image:https://goreportcard.com/badge/github.com/{project-owner}/{project-name}["
 image:https://img.shields.io/codecov/c/github/{project-owner}/{project-name}/master.svg["Coveralls", link="https://codecov.io/gh/{project-owner}/{project-name}"]
 image:https://img.shields.io/github/v/release/{project-owner}/{project-name}["Release", link="https://github.com/{project-owner}/{project-name}/releases"]
 image:https://snapcraft.io/gum/badge.svg["Snapcraft", link="https://snapcraft.io/gum"]
-image:https://img.shields.io/github/downloads/{project-owner}/{project-name}/total["Downloads, link="https://github.com/kordamp/gm/releases"]
+image:https://img.shields.io/github/downloads/{project-owner}/{project-name}/total?color=blue&logo=github["Downloads, link="https://github.com/{project-owner}/{project-name}/releases"]
 
 ---
 
