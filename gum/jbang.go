@@ -347,7 +347,7 @@ func findJbangSourceFile(context Context, dir string, config *Config, args []str
 		}
 	}
 
-	if len(file) > 0 {
+	if exists {
 		f, err := filepath.Abs(file)
 		return filepath.Join(dir, filepath.Base(f)), err
 	}
