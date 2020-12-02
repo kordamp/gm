@@ -52,7 +52,7 @@ snapcrafts:
     summary: "Gum is a Gradle/Maven/jbang wrapper written in Go"
     description: |
       Gum is a Gradle/Maven/jbang wrapper written in Go, inspired in https://github.com/dougborg/gdub and https://github.com/srs/gw.
-      Gum automatically detects if the project is Gradle, Maven, or jbang based and runs the appropriate command. However in the case
+      Gum automatically detects if the project is Gradle, Maven, Bach, or jbang based and runs the appropriate command. However in the case
       that Gum guesses wrong you can force a specific build tool to be used. Similarly as gdub, Gum lets you invoke either Gradle or 
       Maven from anywhere within the project structure, not just the root directory.
 
@@ -60,11 +60,12 @@ snapcrafts:
 
       Gum supports the following flags
 
+      * **-gb** force Bach execution
       * **-gc** displays current configuration and quits
       * **-gd** displays debug information
       * **-gg** force Gradle build
       * **-gh** displays help information
-      * **-gj** force jbang execution
+      * **-gj** force JBang execution
       * **-gm** force Maven build
       * **-gn** executes nearest build file
       * **-gq** run gm in quiet mode

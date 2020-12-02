@@ -28,19 +28,20 @@ func FindTool(args *ParsedArgs) {
 	config := ReadUserConfig(context)
 	config.merge(nil)
 
-	if len(config.general.discovery) == 3 {
+	if len(config.general.discovery) == 4 {
 		discoverTool(config, context, args)
 	}
 
 	doFindGradle(context, args)
 	doFindMaven(context, args)
 	doFindJbang(context, args)
+	doFindBach(context, args)
 
 	if args.HasGumFlag("gc") {
 		config.print()
 		os.Exit(0)
 	} else {
-		fmt.Println("Did not find a Gradle, Maven, or jbang project")
+		fmt.Println("Did not find a Gradle, Maven, Bach, or JBang project")
 		os.Exit(-1)
 	}
 }
@@ -58,6 +59,9 @@ func discoverTool(config *Config, context Context, args *ParsedArgs) {
 			break
 		case "jbang":
 			doFindJbang(context, args)
+			break
+		case "bach":
+			doFindBach(context, args)
 			break
 		default:
 			fmt.Println("Unsupported tool: " + tool)
@@ -81,10 +85,19 @@ func doFindMaven(context Context, args *ParsedArgs) {
 		os.Exit(0)
 	}
 }
+
 func doFindJbang(context Context, args *ParsedArgs) {
 	jbang := FindJbang(context, args)
 	if jbang != nil {
 		jbang.Execute()
+		os.Exit(0)
+	}
+}
+
+func doFindBach(context Context, args *ParsedArgs) {
+	bach := FindBach(context, args)
+	if bach != nil {
+		bach.Execute()
 		os.Exit(0)
 	}
 }

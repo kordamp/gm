@@ -30,6 +30,7 @@ var gmBuildTimestamp string
 func main() {
 	args := gum.ParseArgs(os.Args[1:])
 
+	bachBuild := args.HasGumFlag("gb")
 	gradleBuild := args.HasGumFlag("gg")
 	mavenBuild := args.HasGumFlag("gm")
 	jbangBuild := args.HasGumFlag("gj")
@@ -48,11 +49,12 @@ func main() {
 
 	if help {
 		fmt.Println("Usage of gm:")
+		fmt.Println("  -gb\tforce Bach build")
 		fmt.Println("  -gc\tdisplays current configuration and quits")
 		fmt.Println("  -gd\tdisplays debug information")
 		fmt.Println("  -gg\tforce Gradle build")
 		fmt.Println("  -gh\tdisplays help information")
-		fmt.Println("  -gj\tforce jbang execution")
+		fmt.Println("  -gj\tforce JBang execution")
 		fmt.Println("  -gm\tforce Maven build")
 		fmt.Println("  -gn\texecutes nearest build file")
 		fmt.Println("  -gq\trun gm in quiet mode")
@@ -71,9 +73,12 @@ func main() {
 	if jbangBuild {
 		count = count + 1
 	}
+	if bachBuild {
+		count = count + 1
+	}
 
 	if count > 1 {
-		fmt.Println("You cannot define -gg, -gm, or -gj flags at the same time")
+		fmt.Println("You cannot define -gb, -gg, -gm, or -gj flags at the same time")
 		os.Exit(-1)
 	}
 
@@ -83,6 +88,8 @@ func main() {
 		gum.FindMaven(gum.NewDefaultContext(true), &args).Execute()
 	} else if jbangBuild {
 		gum.FindJbang(gum.NewDefaultContext(true), &args).Execute()
+	} else if bachBuild {
+		gum.FindBach(gum.NewDefaultContext(true), &args).Execute()
 	} else {
 		gum.FindTool(&args)
 	}

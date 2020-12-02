@@ -12,22 +12,24 @@ image:https://img.shields.io/github/downloads/{project-owner}/{project-name}/tot
 
 ---
 
-Gum is a link:https://gradle.org[Gradle]/link:https:maven.apache.org[Maven]/link:https://github.com/jbangdev[jbang] wrapper written in 
-link:https://golang.org/[Go], inspired in link:https://github.com/dougborg/gdub[https://github.com/dougborg/gdub] and 
+Gum is a link:https://gradle.org[Gradle]/link:https:maven.apache.org[Maven]/link:https://github.com/sormuras/bach/[Bach]/link:https://github.com/jbangdev[JBang]
+wrapper written in link:https://golang.org/[Go], inspired in link:https://github.com/dougborg/gdub[https://github.com/dougborg/gdub] and
 link:https://github.com/srs/gw[https://github.com/srs/gw].
 
-Gum automatically detects if the project is Gradle, Maven, or jbang based and runs the appropriate command. However in the case that Gum guesses wrong you can 
-force a specific build tool to be used. Similarly as gdub, Gum lets you invoke either Gradle or Maven from anywhere within the project structure, not just the root directory.
+Gum automatically detects if the project is Gradle, Maven, Bach, or jbang based and runs the appropriate command. However in the case that Gum guesses wrong 
+you canforce a specific build tool to be used. Similarly as gdub, Gum lets you invoke either Gradle or Maven from anywhere within the project structure, 
+not just the root directory.
 
 == Usage
 
 Gum supports the following flags
 
+* *-gb* force Bach execution
 * *-gc* displays current configuration and quits
 * *-gd* displays debug information
 * *-gg* force Gradle build
 * *-gh* displays help information
-* *-gj* force jbang execution
+* *-gj* force JBang execution
 * *-gm* force Maven build
 * *-gn* executes nearest build file
 * *-gq* run gm in quiet mode
@@ -117,7 +119,7 @@ quiet = false
 debug = false
 # tool discovery order
 # default order is the following
-discovery = ["gradle", "maven", "jbang"]
+discovery = ["gradle", "maven", "bach", "jbang"]
 
 [gradle]
 # if goal/tasks should be replaced, same as passing -gr
