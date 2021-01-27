@@ -47,7 +47,8 @@ signs:
 snapcrafts:
   - name: gum
     grade: stable
-    confinement: strict
+    confinement: classic
+    license: Apache-2.0
     publish: true
     summary: "Gum is a Gradle/Maven/jbang wrapper written in Go"
     description: |
