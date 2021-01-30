@@ -79,10 +79,11 @@ snapcrafts:
 brews:
   - name: gum
     goarm: 6
-    github:
+    tap:
       owner: kordamp
       name: gum-homebrew-tap
     folder: Formula
     homepage: "https://github.com/kordamp/gm"
     description: "Gum is a Gradle/Maven/jbang wrapper written in Go"
+    license: Apache-2.0
     skip_upload: false
