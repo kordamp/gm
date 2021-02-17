@@ -143,9 +143,13 @@ defaults = true
 build = "verify"
 
 [jbang]
-# sorce file discovery order
+# source file discovery order
 # default order is the following
 discovery = [".java", ".jsh", ".jar"]
+
+[bach]
+# Bach version to use
+version = "16.0.2"
 ----
 
 == Installation

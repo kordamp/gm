@@ -104,7 +104,7 @@ func FindBach(context Context, args *ParsedArgs) *BachCommand {
 		config.setQuiet(quiet)
 	}
 
-	executable, noExecutable := findBachExecutable(context, rootdir)
+	executable, noExecutable := findBachExecutable(context, config, rootdir)
 
 	if noExecutable != nil {
 		warnNoBach(context, config)
@@ -164,7 +164,7 @@ func warnNoBach(context Context, config *Config) {
 	}
 }
 
-func findBachExecutable(context Context, dir string) (string, error) {
+func findBachExecutable(context Context, config *Config, dir string) (string, error) {
 	java, noJava := findExecutable(context, dir, "java")
 	jshell, noJshell := findExecutable(context, dir, "jshell")
 
@@ -172,14 +172,14 @@ func findBachExecutable(context Context, dir string) (string, error) {
 		if noJshell != nil {
 			return "", errors.New("No java nor jshell found")
 		}
-		return jshell + " https://bit.ly/bach-main-build", nil
+		return jshell + " https://github.com/sormuras/bach/releases/download/" + config.bach.version + "/build.jsh", nil
 	}
 
 	cache := filepath.Join(dir, ".bach", "cache")
 	if context.FileExists(cache) {
 		return java + " -p " + cache + " -m com.github.sormuras.bach build", nil
 	} else if noJshell == nil {
-		return jshell + " https://bit.ly/bach-main-build", nil
+		return jshell + " https://github.com/sormuras/bach/releases/download/" + config.bach.version + "/build.jsh", nil
 	} else {
 		return "", errors.New("jshell not found")
 	}

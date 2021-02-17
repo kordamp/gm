@@ -34,6 +34,7 @@ type Config struct {
 	gradle  gradle
 	maven   maven
 	jbang   jbang
+	bach    bach
 }
 
 type theme struct {
@@ -78,6 +79,10 @@ type jbang struct {
 	discovery []string
 }
 
+type bach struct {
+	version string
+}
+
 func (c *Config) print() {
 	c.theme.t.PrintSection("theme")
 	c.theme.t.PrintKeyValueLiteral("name", c.theme.name)
@@ -108,6 +113,8 @@ func (c *Config) print() {
 	}
 	c.theme.t.PrintSection("jbang")
 	c.theme.t.PrintKeyValueArrayS("discovery", c.jbang.discovery)
+	c.theme.t.PrintSection("bach")
+	c.theme.t.PrintKeyValueLiteral("version", c.bach.version)
 }
 
 func newConfig() *Config {
@@ -133,7 +140,9 @@ func newConfig() *Config {
 			d:        tribool.Maybe,
 			mappings: make(map[string]string)},
 		jbang: jbang{
-			discovery: make([]string, 0)}}
+			discovery: make([]string, 0)},
+		bach: bach{
+			version: ""}}
 }
 
 func (c *Config) setQuiet(b bool) {
@@ -158,11 +167,13 @@ func (c *Config) merge(other *Config) {
 		c.gradle.merge(nil)
 		c.maven.merge(nil)
 		c.jbang.merge(nil)
+		c.bach.merge(nil)
 	} else {
 		c.general.merge(&other.general)
 		c.gradle.merge(&other.gradle)
 		c.maven.merge(&other.maven)
 		c.jbang.merge(&other.jbang)
+		c.bach.merge(&other.bach)
 	}
 }
 
@@ -262,6 +273,14 @@ func (j *jbang) merge(other *jbang) {
 	}
 }
 
+func (b *bach) merge(other *bach) {
+	if len(b.version) == 0 && other != nil && len(other.version) > 0 {
+		b.version = other.version
+	} else {
+		b.version = "16.0.2"
+	}
+}
+
 // ReadUserConfig reads user config
 func ReadUserConfig(context Context) *Config {
 	homedir := context.GetHomeDir()
@@ -308,6 +327,7 @@ func ReadConfigFile(context Context, path string) *Config {
 	resolveSectionGradle(t, config)
 	resolveSectionMaven(t, config)
 	resolveSectionJbang(t, config)
+	resolveSectionBach(t, config)
 
 	return config
 }
@@ -461,6 +481,17 @@ func resolveSectionJbang(t *toml.Tree, config *Config) {
 			for i, e := range data {
 				config.jbang.discovery[i] = e.(string)
 			}
+		}
+	}
+}
+
+func resolveSectionBach(t *toml.Tree, config *Config) {
+	tt := t.Get("bach")
+	if tt != nil {
+		table := tt.(*toml.Tree)
+		v := table.Get("version")
+		if v != nil {
+			config.bach.version = v.(string)
 		}
 	}
 }
