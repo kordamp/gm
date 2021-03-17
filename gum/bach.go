@@ -175,8 +175,11 @@ func findBachExecutable(context Context, config *Config, dir string) (string, er
 		return jshell + " https://github.com/sormuras/bach/releases/download/" + config.bach.version + "/build.jsh", nil
 	}
 
+	bin := filepath.Join(dir, ".bach", "bin")
 	cache := filepath.Join(dir, ".bach", "cache")
-	if context.FileExists(cache) {
+	if context.FileExists(bin) {
+		return java + " -p " + bin + " -m com.github.sormuras.bach build", nil
+	} else if context.FileExists(cache) {
 		return java + " -p " + cache + " -m com.github.sormuras.bach build", nil
 	} else if noJshell == nil {
 		return jshell + " https://github.com/sormuras/bach/releases/download/" + config.bach.version + "/build.jsh", nil
