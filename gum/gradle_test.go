@@ -21,6 +21,103 @@ import (
 	"testing"
 )
 
+func TestGradleTaskSubstitutionAppendFlag(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "single-with-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	args := ParseArgs([]string{"-gq", "verify", "-S"})
+	cmd := FindGradle(context, &args)
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+		return
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(pwd, "gradlew")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "build.gradle")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "build.gradle")},
+		{"SettingsFile", cmd.settingsFile, filepath.Join(pwd, "settings.gradle")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+		{"ExplicitSettingsFile", cmd.explicitSettingsFile, ""},
+		{"ExplicitProjectDir", cmd.explicitProjectDir, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+
+	cmd.doConfigureGradle()
+	if cmd.args.Args[0] != "-b" || cmd.args.Args[1] != filepath.Join(pwd, "build.gradle") {
+		t.Errorf("args: invalid build file")
+	}
+	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-2] != "build" {
+		t.Errorf("args: got verify, want build")
+	}
+}
+
+func TestGradleTaskSubstitutionPrependFlag(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "single-with-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	args := ParseArgs([]string{"-gq", "-S", "verify"})
+	cmd := FindGradle(context, &args)
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+		return
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(pwd, "gradlew")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "build.gradle")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "build.gradle")},
+		{"SettingsFile", cmd.settingsFile, filepath.Join(pwd, "settings.gradle")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+		{"ExplicitSettingsFile", cmd.explicitSettingsFile, ""},
+		{"ExplicitProjectDir", cmd.explicitProjectDir, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+
+	cmd.doConfigureGradle()
+	if cmd.args.Args[0] != "-b" || cmd.args.Args[1] != filepath.Join(pwd, "build.gradle") {
+		t.Errorf("args: invalid build file")
+	}
+	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-1] != "build" {
+		t.Errorf("args: got verify, want build")
+	}
+}
 func TestGradleSingleWithWrapper(t *testing.T) {
 	// given:
 	bin, _ := filepath.Abs(filepath.Join("..", "tests", "gradle", "bin"))

@@ -62,8 +62,9 @@ func (c *GradleCommand) doConfigureGradle() {
 		c.config.gradle.setReplace(!skipReplace)
 	}
 	c.debugConfig()
+	otargs := c.args.Tool
 	oargs := c.args.Args
-	rargs := replaceGradleTasks(c.config, c.args)
+	rtargs, rargs := replaceGradleTasks(c.config, c.args)
 
 	if len(c.explicitProjectDir) > 0 {
 		banner = append(banner, "to run project at '"+c.explicitProjectDir+"':")
@@ -105,10 +106,10 @@ func (c *GradleCommand) doConfigureGradle() {
 		}
 	}
 
-	args = appendSafe(args, c.args.Tool)
+	args = appendSafe(args, rtargs)
 	c.args.Args = appendSafe(args, rargs)
 
-	c.debugGradle(oargs, rargs)
+	c.debugGradle(otargs, oargs, rtargs, rargs)
 
 	if !c.config.general.quiet {
 		fmt.Println(strings.Join(banner, " "))
@@ -129,7 +130,7 @@ func (c *GradleCommand) debugConfig() {
 	}
 }
 
-func (c *GradleCommand) debugGradle(oargs []string, rargs []string) {
+func (c *GradleCommand) debugGradle(otargs []string, oargs []string, rtargs []string, rargs []string) {
 	if c.config.general.debug {
 		fmt.Println("nearest              = ", c.args.HasGumFlag("gn"))
 		fmt.Println("replace              = ", c.config.gradle.replace)
@@ -141,6 +142,10 @@ func (c *GradleCommand) debugGradle(oargs []string, rargs []string) {
 		fmt.Println("explicitBuildFile    = ", c.explicitBuildFile)
 		fmt.Println("explicitSettingsFile = ", c.explicitSettingsFile)
 		fmt.Println("explicitProjectDir   = ", c.explicitProjectDir)
+		fmt.Println("original tool args   = ", otargs)
+		if c.config.gradle.replace {
+			fmt.Println("replaced tool args   = ", rtargs)
+		}
 		fmt.Println("original args        = ", oargs)
 		if c.config.gradle.replace {
 			fmt.Println("replaced args        = ", rargs)
@@ -150,12 +155,12 @@ func (c *GradleCommand) debugGradle(oargs []string, rargs []string) {
 	}
 }
 
-func replaceGradleTasks(config *Config, args *ParsedArgs) []string {
+func replaceGradleTasks(config *Config, args *ParsedArgs) ([]string, []string) {
 	if config.gradle.replace {
-		return replaceArgs(args.Args, config.gradle.mappings, true)
+		return replaceArgs(args.Tool, config.gradle.mappings, true), replaceArgs(args.Args, config.gradle.mappings, true)
 	}
 
-	return args.Args
+	return args.Tool, args.Args
 }
 
 // FindGradle finds and executes gradlew/gradle

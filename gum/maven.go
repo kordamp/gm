@@ -58,8 +58,9 @@ func (c *MavenCommand) doConfigureMaven() {
 		c.config.gradle.setReplace(!skipReplace)
 	}
 	c.debugConfig()
+	otargs := c.args.Tool
 	oargs := c.args.Args
-	rargs := replaceMavenGoals(c.config, c.args)
+	rtargs, rargs := replaceMavenGoals(c.config, c.args)
 
 	if len(c.explicitBuildFile) > 0 {
 		args = append(args, "-f")
@@ -75,10 +76,10 @@ func (c *MavenCommand) doConfigureMaven() {
 		banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
 	}
 
-	args = appendSafe(args, c.args.Tool)
+	args = appendSafe(args, rtargs)
 	c.args.Args = appendSafe(args, rargs)
 
-	c.debugMaven(oargs, rargs)
+	c.debugMaven(otargs, oargs, rtargs, rargs)
 
 	if !c.config.general.quiet {
 		fmt.Println(strings.Join(banner, " "))
@@ -99,7 +100,7 @@ func (c *MavenCommand) debugConfig() {
 	}
 }
 
-func (c *MavenCommand) debugMaven(oargs []string, rargs []string) {
+func (c *MavenCommand) debugMaven(otargs []string, oargs []string, rtargs []string, rargs []string) {
 	if c.config.general.debug {
 		fmt.Println("nearest            = ", c.args.HasGumFlag("gn"))
 		fmt.Println("replace            = ", c.config.maven.replace)
@@ -107,6 +108,10 @@ func (c *MavenCommand) debugMaven(oargs []string, rargs []string) {
 		fmt.Println("rootBuildFile      = ", c.rootBuildFile)
 		fmt.Println("buildFile          = ", c.buildFile)
 		fmt.Println("explicitBuildFile  = ", c.explicitBuildFile)
+		fmt.Println("original tool args = ", otargs)
+		if c.config.maven.replace {
+			fmt.Println("replaced tool args = ", rtargs)
+		}
 		fmt.Println("original args      = ", oargs)
 		if c.config.maven.replace {
 			fmt.Println("replaced args      = ", rargs)
@@ -116,12 +121,12 @@ func (c *MavenCommand) debugMaven(oargs []string, rargs []string) {
 	}
 }
 
-func replaceMavenGoals(config *Config, args *ParsedArgs) []string {
+func replaceMavenGoals(config *Config, args *ParsedArgs) ([]string, []string) {
 	if config.maven.replace {
-		return replaceArgs(args.Args, config.maven.mappings, false)
+		return replaceArgs(args.Tool, config.maven.mappings, false), replaceArgs(args.Args, config.maven.mappings, false)
 	}
 
-	return args.Args
+	return args.Tool, args.Args
 }
 
 // FindMaven finds and executes mvnw/mvn

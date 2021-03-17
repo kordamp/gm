@@ -21,6 +21,98 @@ import (
 	"testing"
 )
 
+func TestMavenGoalSubstitutionAppendFlag(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "single-with-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	args := ParseArgs([]string{"-gq", "build", "-X"})
+	cmd := FindMaven(context, &args)
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+		return
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(pwd, "mvnw")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+
+	cmd.doConfigureMaven()
+	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "pom.xml") {
+		t.Errorf("args: invalid build file")
+	}
+	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-2] != "verify" {
+		t.Errorf("args: got build, want verify")
+	}
+}
+
+func TestMavenGoalSubstitutionPrependFlag(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "single-with-wrapper"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	args := ParseArgs([]string{"-gq", "-X", "build"})
+	cmd := FindMaven(context, &args)
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+		return
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(pwd, "mvnw")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+
+	cmd.doConfigureMaven()
+	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "pom.xml") {
+		t.Errorf("args: invalid build file")
+	}
+	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-1] != "verify" {
+		t.Errorf("args: got build, want verify")
+	}
+}
+
 func TestMavenSingleWithWrapper(t *testing.T) {
 	// given:
 	bin, _ := filepath.Abs(filepath.Join("..", "tests", "maven", "bin"))

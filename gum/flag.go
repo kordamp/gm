@@ -52,7 +52,7 @@ func ParseArgs(args []string) ParsedArgs {
 	mode := 0
 
 	for i := 0; i < len(args); i++ {
-		s := args[i]
+		s := strings.TrimSpace(args[i])
 
 		switch mode {
 		case 0:
