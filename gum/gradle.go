@@ -319,6 +319,7 @@ func resolveGradleWrapperExecutable(context Context, args *ParsedArgs) (string, 
 func warnNoGradleWrapper(context Context, config *Config) {
 	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s set up for this project. ", resolveGradleWrapperExec(context))
+		fmt.Println()
 		fmt.Println("Please consider setting one up.")
 		fmt.Println("(https://gradle.org/docs/current/userguide/gradle_wrapper.html)")
 		fmt.Println()
@@ -328,6 +329,7 @@ func warnNoGradleWrapper(context Context, config *Config) {
 func warnNoGradle(context Context, config *Config) {
 	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s found in path. Please install Gradle.", resolveGradleExec(context))
+		fmt.Println()
 		fmt.Println("(https://gradle.org/docs/current/userguide/installation.html)")
 		fmt.Println()
 	}

@@ -33,7 +33,7 @@ func (a *ParsedArgs) HasGumFlag(flag string) bool {
 	return ok
 }
 
-var gumFlags = []string{"gb", "gc", "gd", "gg", "gh", "gj", "gm", "gn", "gq", "gr", "gv"}
+var gumFlags = []string{"ga", "gb", "gc", "gd", "gg", "gh", "gj", "gm", "gn", "gq", "gr", "gv"}
 
 // ParseArgs parses input args and separates them between Gum, Tool, and Args
 func ParseArgs(args []string) ParsedArgs {

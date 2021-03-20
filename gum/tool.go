@@ -22,26 +22,27 @@ import (
 	"strings"
 )
 
-// FindTool Executes gradle/maven/jbang based on config discovery
+// FindTool Executes gradle/maven/ant/bach/jbang based on config discovery
 func FindTool(args *ParsedArgs) {
 	context := NewDefaultContext(false)
 	config := ReadUserConfig(context)
 	config.merge(nil)
 
-	if len(config.general.discovery) == 4 {
+	if len(config.general.discovery) == 5 {
 		discoverTool(config, context, args)
 	}
 
 	doFindGradle(context, args)
 	doFindMaven(context, args)
-	doFindJbang(context, args)
+	doFindAnt(context, args)
 	doFindBach(context, args)
+	doFindJbang(context, args)
 
 	if args.HasGumFlag("gc") {
 		config.print()
 		os.Exit(0)
 	} else {
-		fmt.Println("Did not find a Gradle, Maven, Bach, or JBang project")
+		fmt.Println("Did not find a Gradle, Maven, Bach, JBang or Ant project")
 		os.Exit(-1)
 	}
 }
@@ -62,6 +63,9 @@ func discoverTool(config *Config, context Context, args *ParsedArgs) {
 			break
 		case "bach":
 			doFindBach(context, args)
+			break
+		case "ant":
+			doFindAnt(context, args)
 			break
 		default:
 			fmt.Println("Unsupported tool: " + tool)
@@ -98,6 +102,14 @@ func doFindBach(context Context, args *ParsedArgs) {
 	bach := FindBach(context, args)
 	if bach != nil {
 		bach.Execute()
+		os.Exit(0)
+	}
+}
+
+func doFindAnt(context Context, args *ParsedArgs) {
+	ant := FindAnt(context, args)
+	if ant != nil {
+		ant.Execute()
 		os.Exit(0)
 	}
 }

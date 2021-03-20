@@ -183,6 +183,7 @@ func resolveJbangRootDir(context Context,
 func warnNoJbangWrapper(context Context, config *Config) {
 	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s set up for this project. ", resolveJbangWrapperExec(context))
+		fmt.Println()
 		fmt.Println("Please consider setting one up.")
 		fmt.Println("(https://github.com/jbangdev)")
 		fmt.Println()
@@ -192,6 +193,7 @@ func warnNoJbangWrapper(context Context, config *Config) {
 func warnNoJbang(context Context, config *Config) {
 	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s found in path. Please install jbang.", resolveJbangExec(context))
+		fmt.Println()
 		fmt.Println("(https://github.com/jbangdev)")
 		fmt.Println()
 	}

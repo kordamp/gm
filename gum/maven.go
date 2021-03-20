@@ -209,6 +209,7 @@ func resolveMavenRootDir(context Context,
 func warnNoMavenWrapper(context Context, config *Config) {
 	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s set up for this project. ", resolveMavenWrapperExec(context))
+		fmt.Println()
 		fmt.Println("Please consider setting one up.")
 		fmt.Println("(https://maven.apache.org/)")
 		fmt.Println()
@@ -218,6 +219,7 @@ func warnNoMavenWrapper(context Context, config *Config) {
 func warnNoMaven(context Context, config *Config) {
 	if !config.general.quiet && context.IsExplicit() {
 		fmt.Printf("No %s found in path. Please install Maven.", resolveMavenExec(context))
+		fmt.Println()
 		fmt.Println("(https://maven.apache.org/download.cgi)")
 		fmt.Println()
 	}

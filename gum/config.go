@@ -190,7 +190,7 @@ func (g *general) merge(other *general) {
 		g.debug = other.d.WithMaybeAsFalse()
 	}
 
-	if len(g.discovery) != 3 && other != nil {
+	if len(g.discovery) != 5 && other != nil {
 		g.discovery = other.discovery
 	}
 }

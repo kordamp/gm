@@ -34,6 +34,7 @@ func main() {
 	gradleBuild := args.HasGumFlag("gg")
 	mavenBuild := args.HasGumFlag("gm")
 	jbangBuild := args.HasGumFlag("gj")
+	antBuild := args.HasGumFlag("ga")
 	version := args.HasGumFlag("gv")
 	help := args.HasGumFlag("gh")
 
@@ -49,6 +50,7 @@ func main() {
 
 	if help {
 		fmt.Println("Usage of gm:")
+		fmt.Println("  -ga\tforce Ant build")
 		fmt.Println("  -gb\tforce Bach build")
 		fmt.Println("  -gc\tdisplays current configuration and quits")
 		fmt.Println("  -gd\tdisplays debug information")
@@ -76,9 +78,12 @@ func main() {
 	if bachBuild {
 		count = count + 1
 	}
+	if antBuild {
+		count = count + 1
+	}
 
 	if count > 1 {
-		fmt.Println("You cannot define -gb, -gg, -gm, or -gj flags at the same time")
+		fmt.Println("You cannot define -gb, -gg, -gm, gj, or -ga flags at the same time")
 		os.Exit(-1)
 	}
 
@@ -90,6 +95,8 @@ func main() {
 		gum.FindJbang(gum.NewDefaultContext(true), &args).Execute()
 	} else if bachBuild {
 		gum.FindBach(gum.NewDefaultContext(true), &args).Execute()
+	} else if antBuild {
+		gum.FindAnt(gum.NewDefaultContext(true), &args).Execute()
 	} else {
 		gum.FindTool(&args)
 	}
