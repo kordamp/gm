@@ -308,7 +308,7 @@ func findMavenRootFile(context Context, dir string) (string, error) {
 // Resolves the mvnw executable (OS dependent)
 func resolveMavenWrapperExec(context Context) string {
 	if context.IsWindows() {
-		return "mvnw.bat"
+		return "mvnw.cmd"
 	}
 	return "mvnw"
 }
@@ -316,7 +316,7 @@ func resolveMavenWrapperExec(context Context) string {
 // Resolves the mvn executable (OS dependent)
 func resolveMavenExec(context Context) string {
 	if context.IsWindows() {
-		return "mvn.bat"
+		return "mvn.cmd"
 	}
 	return "mvn"
 }
