@@ -43,6 +43,8 @@ func (c AntCommand) Execute() {
 }
 
 func (c *AntCommand) doConfigureAnt() {
+	c.context.CheckIsExecutable(c.executable)
+
 	args := make([]string, 0)
 
 	banner := make([]string, 0)

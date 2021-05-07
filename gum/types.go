@@ -30,6 +30,9 @@ type Context interface {
 	// IsWindows checks if the current OS is Windows
 	IsWindows() bool
 
+	// CheckIsExecutable checks if the given file has executable bits
+	CheckIsExecutable(file string)
+
 	// GetWorkingDir returns the current working dir
 	GetWorkingDir() string
 

@@ -41,6 +41,9 @@ func (c BachCommand) Execute() {
 }
 
 func (c *BachCommand) doConfigureBach() {
+	execParts := strings.Split(c.executable, " ")
+	c.context.CheckIsExecutable(execParts[0])
+
 	args := make([]string, 0)
 
 	banner := make([]string, 0)
@@ -54,7 +57,6 @@ func (c *BachCommand) doConfigureBach() {
 	c.debugConfig()
 	oargs := c.args.Args
 
-	execParts := strings.Split(c.executable, " ")
 	c.executable = execParts[0]
 
 	args = appendSafe(args, execParts[1:])

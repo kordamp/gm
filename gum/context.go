@@ -17,6 +17,7 @@
 package gum
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -40,6 +41,18 @@ func (c DefaultContext) IsExplicit() bool {
 // IsWindows checks if the current OS is Windows
 func (c DefaultContext) IsWindows() bool {
 	return runtime.GOOS == "windows"
+}
+
+// CheckIsExecutable checks if the given file has executable bits
+func (c DefaultContext) CheckIsExecutable(file string) {
+	if !c.IsWindows() {
+		fileInfo, _ := os.Stat(file)
+		if fileInfo.Mode().Perm()&0111 == 0 {
+			fmt.Printf("%s is not executable", file)
+			fmt.Println()
+			c.Exit(-1)
+		}
+	}
 }
 
 // GetWorkingDir returns the current working dir
@@ -104,6 +117,10 @@ func (c testContext) IsQuiet() bool {
 
 func (c testContext) IsExplicit() bool {
 	return c.explicit
+}
+
+func (c testContext) CheckIsExecutable(file string) {
+
 }
 
 func (c testContext) IsWindows() bool {

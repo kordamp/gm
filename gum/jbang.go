@@ -54,6 +54,8 @@ func (c JbangCommand) Execute() {
 }
 
 func (c *JbangCommand) doConfigureJbang() {
+	c.context.CheckIsExecutable(c.executable)
+
 	args := make([]string, 0)
 
 	banner := make([]string, 0)

@@ -43,6 +43,8 @@ func (c MavenCommand) Execute() {
 }
 
 func (c *MavenCommand) doConfigureMaven() {
+	c.context.CheckIsExecutable(c.executable)
+
 	args := make([]string, 0)
 
 	banner := make([]string, 0)
