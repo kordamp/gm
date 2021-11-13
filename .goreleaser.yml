@@ -13,7 +13,10 @@ builds:
     ignore:
       - goos: darwin
         goarch: 386
+      - goos: windows
+        goarch: arm64
     main: ./gm.go
+    mod_timestamp: '{{ .CommitTimestamp }}'
     ldflags:
      - -s -w -X 'main.gmVersion={{.Version}}' -X 'main.gmBuildCommit={{.Commit}}' -X 'main.gmBuildTimestamp={{.Date}}'
 archives:
