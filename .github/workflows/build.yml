@@ -6,15 +6,12 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      GOPATH: ${{ github.workspace }}
-      GO111MODULE: off
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
         with:
-          path: ./gm/src/github.com/${{ github.repository }}
+          fetch-depth: 0
 
       - name: Set up Snapcraft
         run: |
