@@ -88,3 +88,9 @@ brews:
     description: "Gum is a Gradle/Maven/Ant/Bach/JBang wrapper written in Go"
     license: Apache-2.0
     skip_upload: false
+
+announce:
+  twitter:
+    enabled: true
+    # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}`
+    message_template: '🚀 {{ .ProjectName }} {{ .Tag }} has been released! {{ .ReleaseURL }}'
