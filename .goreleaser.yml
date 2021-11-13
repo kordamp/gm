@@ -1,18 +1,24 @@
+env:
+  - GO111MODULE=on
+  
 builds:
   - env:
       - CGO_ENABLED=0
     goos:
-#      - linux
-#      - darwin
+      - linux
+      - darwin
       - windows
     goarch:
       - 386
       - amd64
       - arm
       - arm64
-#    ignore:
-#      - goos: darwin
-#        goarch: 386
+    goarm:
+      - "6"
+      - "7"
+    ignore:
+      - goos: darwin
+        goarch: 386
     main: ./gm.go
     mod_timestamp: '{{ .CommitTimestamp }}'
     ldflags:
@@ -95,10 +101,10 @@ brews:
     homepage: "https://github.com/kordamp/gm"
     description: "Gum is a Gradle/Maven/Ant/Bach/JBang wrapper written in Go"
     license: Apache-2.0
-    skip_upload: false
+    skip_upload: auto
 
 announce:
+  skip: '{{ .IsSnapshot }}'
   twitter:
     enabled: true
-    # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}`
     message_template: '🚀 {{ .ProjectName }} {{ .Tag }} has been released! {{ .ReleaseURL }}'
