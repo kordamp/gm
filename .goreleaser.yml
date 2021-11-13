@@ -2,21 +2,22 @@ builds:
   - env:
       - CGO_ENABLED=0
     goos:
-      - linux
-      - darwin
+#      - linux
+#      - darwin
       - windows
     goarch:
       - 386
       - amd64
       - arm
       - arm64
-    ignore:
-      - goos: darwin
-        goarch: 386
+#    ignore:
+#      - goos: darwin
+#        goarch: 386
     main: ./gm.go
     mod_timestamp: '{{ .CommitTimestamp }}'
     ldflags:
      - -s -w -X 'main.gmVersion={{.Version}}' -X 'main.gmBuildCommit={{.Commit}}' -X 'main.gmBuildTimestamp={{.Date}}'
+
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     replacements:
@@ -30,11 +31,14 @@ archives:
         format: zip
       - goos: darwin
         format: zip
+
 checksum:
   name_template: "checksums.txt"
   algorithm: sha512
+
 snapshot:
   name_template: "{{ .Tag }}-next"
+
 changelog:
   filters:
     exclude:
@@ -42,9 +46,11 @@ changelog:
       - "^test:"
       - Merge pull request
       - Merge branch
+
 signs:
   - artifacts: all
     args: ["--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}",  "--detach-sign",  "${artifact}"]
+
 snapcrafts:
   - name: gum
     grade: stable
@@ -78,6 +84,7 @@ snapcrafts:
       Gum will execute the build based on the root build file unless **-gn** is specified, in which case the nearest build file
       will be selected. If a specific build file is given (**-b**, **--build-file** for Gradle; **-f**, **--file** for Maven,
       **-f**, **-file**, **-buildfile** for Ant) then that file will be used instead.
+
 brews:
   - name: gum
     goarm: 6
