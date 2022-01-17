@@ -1,0 +1,7 @@
+[general]
+quiet = false
+debug = true
+
+[maven]
+defaults = true
+mvnd = true

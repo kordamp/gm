@@ -374,3 +374,41 @@ func TestMavenWithoutExecutables(t *testing.T) {
 		t.Error("Expected a nil command but got something")
 	}
 }
+
+func TestMvndSingle(t *testing.T) {
+	// given:
+	bin, _ := filepath.Abs(filepath.Join("..", "tests", "mvnd", "bin"))
+	pwd, _ := filepath.Abs(filepath.Join("..", "tests", "mvnd", "single"))
+
+	context := testContext{
+		quiet:      true,
+		explicit:   true,
+		windows:    false,
+		workingDir: pwd,
+		paths:      []string{bin}}
+
+	// when:
+	args := ParseArgs([]string{"-gq"})
+	cmd := FindMaven(context, &args)
+
+	// then:
+	if cmd == nil {
+		t.Error("Expected a command but got nil")
+		return
+	}
+
+	var checks = []struct {
+		title, actual, expected string
+	}{
+		{"Executable", cmd.executable, filepath.Join(bin, "mvnd")},
+		{"RootBuildFile", cmd.rootBuildFile, filepath.Join(pwd, "pom.xml")},
+		{"BuildFile", cmd.buildFile, filepath.Join(pwd, "pom.xml")},
+		{"ExplicitBuildFile", cmd.explicitBuildFile, ""},
+	}
+
+	for _, check := range checks {
+		if check.actual != check.expected {
+			t.Errorf("%s: got %s, want %s", check.title, check.actual, check.expected)
+		}
+	}
+}

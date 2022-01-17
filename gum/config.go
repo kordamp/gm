@@ -69,10 +69,12 @@ type gradle struct {
 type maven struct {
 	replace  bool
 	defaults bool
+	mvnd     bool
 	mappings map[string]string
 
 	r tribool.Tribool
 	d tribool.Tribool
+	m tribool.Tribool
 }
 
 type jbang struct {
@@ -107,6 +109,7 @@ func (c *Config) print() {
 	c.theme.t.PrintSection("maven")
 	c.theme.t.PrintKeyValueBoolean("replace", c.maven.replace)
 	c.theme.t.PrintKeyValueBoolean("defaults", c.maven.defaults)
+	c.theme.t.PrintKeyValueBoolean("mvnd", c.maven.mvnd)
 	if len(c.maven.mappings) > 0 {
 		c.theme.t.PrintSection("maven.mappings")
 		c.theme.t.PrintMap(c.maven.mappings)
@@ -138,6 +141,7 @@ func newConfig() *Config {
 		maven: maven{
 			r:        tribool.Maybe,
 			d:        tribool.Maybe,
+			m:        tribool.Maybe,
 			mappings: make(map[string]string)},
 		jbang: jbang{
 			discovery: make([]string, 0)},
@@ -240,6 +244,12 @@ func (m *maven) merge(other *maven) {
 		m.defaults = m.d.WithMaybeAsTrue()
 	} else {
 		m.defaults = other.d.WithMaybeAsTrue()
+	}
+
+	if m.m != tribool.Maybe || other == nil {
+		m.mvnd = m.m.WithMaybeAsTrue()
+	} else {
+		m.mvnd = other.m.WithMaybeAsTrue()
 	}
 
 	mp := make(map[string]string)
@@ -458,6 +468,10 @@ func resolveSectionMaven(t *toml.Tree, config *Config) {
 		v = table.Get("defaults")
 		if v != nil {
 			config.maven.d = tribool.FromBool(v.(bool))
+		}
+		v = table.Get("mvnd")
+		if v != nil {
+			config.maven.m = tribool.FromBool(v.(bool))
 		}
 		v = table.Get("mappings")
 		if v != nil {

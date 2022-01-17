@@ -137,6 +137,7 @@ func FindMaven(context Context, args *ParsedArgs) *MavenCommand {
 
 	mvnw, noWrapper := findMavenWrapperExec(context, pwd)
 	mvn, noMaven := findMavenExec(context)
+	mvnd, noMvnd := findMvndExec(context)
 	explicitBuildFileSet, explicitBuildFile := findExplicitMavenBuildFile(args)
 
 	rootBuildFile, noRootBuildFile := findMavenRootFile(context, filepath.Join(pwd, ".."))
@@ -150,7 +151,9 @@ func FindMaven(context Context, args *ParsedArgs) *MavenCommand {
 	}
 
 	var executable string
-	if noWrapper == nil {
+	if config.maven.mvnd && noMvnd == nil {
+		executable = mvnd
+	} else if noWrapper == nil {
 		executable = mvnw
 	} else if noMaven == nil {
 		warnNoMavenWrapper(context, config)
@@ -242,6 +245,21 @@ func findMavenExec(context Context) (string, error) {
 	return "", errors.New(maven + " not found")
 }
 
+// Finds the mvnd executable
+func findMvndExec(context Context) (string, error) {
+	mvnd := resolveMvndExec(context)
+	paths := context.GetPaths()
+
+	for i := range paths {
+		name := filepath.Join(paths[i], mvnd)
+		if context.FileExists(name) {
+			return filepath.Abs(name)
+		}
+	}
+
+	return "", errors.New(mvnd + " not found")
+}
+
 // Finds the Maven wrapper (if it exists)
 func findMavenWrapperExec(context Context, dir string) (string, error) {
 	wrapper := resolveMavenWrapperExec(context)
@@ -321,4 +339,12 @@ func resolveMavenExec(context Context) string {
 		return "mvn.cmd"
 	}
 	return "mvn"
+}
+
+// Resolves the mvnd executable (OS dependent)
+func resolveMvndExec(context Context) string {
+	if context.IsWindows() {
+		return "mvnd.cmd"
+	}
+	return "mvnd"
 }
