@@ -57,6 +57,10 @@ signs:
   - artifacts: all
     args: ["--batch", "-u", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}",  "--detach-sign",  "${artifact}"]
 
+milestones:
+  - close: true
+    name_template: "{{ .Version }}"
+
 snapcrafts:
   - name: gum
     grade: stable
