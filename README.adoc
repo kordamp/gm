@@ -138,6 +138,8 @@ compile = "classes"
 replace = true
 # if the default replace mappings should be used
 defaults = true
+# gives priority to mvnd over mvnw/mvn
+mvnd = false
 
 # gradle -> mappings
 [maven.mappings]
