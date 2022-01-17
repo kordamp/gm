@@ -96,7 +96,7 @@ brews:
     goarm: 6
     tap:
       owner: kordamp
-      name: gum-homebrew-tap
+      name: homebrew-tap
     folder: Formula
     homepage: "https://github.com/kordamp/gm"
     description: "Gum is a Gradle/Maven/Ant/Bach/JBang wrapper written in Go"

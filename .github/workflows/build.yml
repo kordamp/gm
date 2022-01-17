@@ -16,7 +16,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.17.2'
+          go-version: '1.17.5'
 
       - name: Set up Snapcraft
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: GoReleaser Snapshot
         uses: goreleaser/goreleaser-action@v2
         with:
-          version: v0.184.0
+          version: v1.3.1
           args: build --snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
