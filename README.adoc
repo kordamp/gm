@@ -223,3 +223,28 @@ $ ./gm -gv
 ----
 $ go test -v ./...
 ----
+
+== FAQ
+
+=== Oh My ZSH incompatibility
+
+If you try to execute `gm` you might get error messages like these:
+
+* `not a git repository`
+* `not something we can merge`
+
+This happens, if you have link:https://ohmyz.sh/[oh-my-zsh] installed on your system. The _git plugin_ registers the alias `gm` for `git merge`. That overrides the `gm` command from Gum. To solve this problem, remove the _git plugin_ from the list of plugins to load in your `~/.zshrc` file.
+
+==== Example
+
+.Before
+[source,properties]
+----
+plugins=(docker git sdk)
+----
+
+.After
+[source,properties]
+----
+plugins=(docker sdk)
+----
