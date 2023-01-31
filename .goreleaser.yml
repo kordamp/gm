@@ -112,3 +112,7 @@ announce:
   twitter:
     enabled: true
     message_template: '🚀 {{ .ProjectName }} {{ .Tag }} has been released! {{ .ReleaseURL }}'
+  mastodon:
+    enabled: true
+    message_template: '🚀 {{ .ProjectName }} {{ .Tag }} has been released! {{ .ReleaseURL }}'
+    server: https://mastodon.social
