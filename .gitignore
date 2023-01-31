@@ -10,3 +10,5 @@ target/
 .project
 .DS_Store
 gm
+.vscode
+snap.login
