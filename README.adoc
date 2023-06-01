@@ -175,6 +175,13 @@ Or use the `upgrade` or `reinstall` commands if you have a previous installation
 $ sudo snap install --classic gum
 ----
 
+== Scoop
+
+[source]
+----
+$ scoop install main/gum
+----
+
 === Manually
 
 Download the pre-compiled binaries from the link:https://github.com/kordamp/gm/releases[releases page] and copy to the desired location.
