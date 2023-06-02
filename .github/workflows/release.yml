@@ -8,7 +8,6 @@ on:
 jobs:
   Release:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -20,18 +19,28 @@ jobs:
         with:
           go-version: '1.20.4'
 
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
       - name: Set up Snapcraft
+        shell: bash
         run: |
           sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
                 
       - name: Snapcraft Login
         if: success() && startsWith(github.ref, 'refs/tags/v')
+        shell: bash
         env:
-          SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_LOGIN }}
         run: |
-          snapcraft login --with <(echo "$SNAPCRAFT_LOGIN")
+          snapcraft login
 
       - name: Setup Chocolatey
+        shell: bash
         run: |
           mkdir -p /opt/chocolatey
           wget -q -O - "https://github.com/chocolatey/choco/releases/download/${CHOCOLATEY_VERSION}/chocolatey.v${CHOCOLATEY_VERSION}.tar.gz" | tar -xz -C "/opt/chocolatey"
@@ -41,21 +50,15 @@ jobs:
         env:
           CHOCOLATEY_VERSION: 1.4.0
 
-      - name: Import GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v5
-        env:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
-
       - name: Get Dependencies
+        shell: bash
         run: go get ./...
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
           version: latest
-          args: release --rm-dist
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}

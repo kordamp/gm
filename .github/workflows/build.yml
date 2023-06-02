@@ -1,12 +1,13 @@
 name: Build
 
-on: [push, pull_request]
+on: 
+  push: 
+    branches: [ master ]
+  pull_request:
 
 jobs:
-  build:
-    name: Build
+  Build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,17 +19,6 @@ jobs:
         with:
           go-version: '1.20.4'
 
-      - name: Set up Snapcraft
-        run: |
-          sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
-
-      - name: Snapcraft Login
-        if: success() && startsWith(github.ref, 'refs/tags/v')
-        env:
-          SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
-        run: |
-          snapcraft login --with <(echo "$SNAPCRAFT_LOGIN")
-
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v5
@@ -36,10 +26,25 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
+      - name: Set up Snapcraft
+        shell: bash
+        run: |
+          sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
+
+      - name: Snapcraft Login
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_LOGIN }}
+        run: |
+          snapcraft login
+
       - name: Get Dependencies
+        shell: bash
         run: go get ./...
 
       - name: Test
+        shell: bash
         run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
       - name: Coverage
