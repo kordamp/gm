@@ -48,9 +48,9 @@ type JbangCommand struct {
 }
 
 // Execute executes the given command
-func (c JbangCommand) Execute() {
+func (c JbangCommand) Execute() int {
 	c.doConfigureJbang()
-	c.doExecuteJbang()
+	return c.doExecuteJbang()
 }
 
 func (c *JbangCommand) doConfigureJbang() {
@@ -87,11 +87,16 @@ func (c *JbangCommand) doConfigureJbang() {
 	}
 }
 
-func (c *JbangCommand) doExecuteJbang() {
+func (c *JbangCommand) doExecuteJbang() int {
 	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	err := cmd.Run()
+	var exerr *exec.ExitError
+	if errors.As(err, &exerr) {
+		return exerr.ExitCode()
+	}
+	return 0
 }
 
 func (c *JbangCommand) debugConfig() {

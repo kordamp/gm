@@ -37,9 +37,9 @@ type AntCommand struct {
 }
 
 // Execute executes the given command
-func (c AntCommand) Execute() {
+func (c AntCommand) Execute() int {
 	c.doConfigureAnt()
-	c.doExecuteAnt()
+	return c.doExecuteAnt()
 }
 
 func (c *AntCommand) doConfigureAnt() {
@@ -79,11 +79,16 @@ func (c *AntCommand) doConfigureAnt() {
 	}
 }
 
-func (c *AntCommand) doExecuteAnt() {
+func (c *AntCommand) doExecuteAnt() int {
 	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	err := cmd.Run()
+	var exerr *exec.ExitError
+	if errors.As(err, &exerr) {
+		return exerr.ExitCode()
+	}
+	return 0
 }
 
 func (c *AntCommand) debugConfig() {

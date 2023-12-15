@@ -37,9 +37,9 @@ type MavenCommand struct {
 }
 
 // Execute executes the given command
-func (c MavenCommand) Execute() {
+func (c MavenCommand) Execute() int {
 	c.doConfigureMaven()
-	c.doExecuteMaven()
+	return c.doExecuteMaven()
 }
 
 func (c *MavenCommand) doConfigureMaven() {
@@ -88,11 +88,16 @@ func (c *MavenCommand) doConfigureMaven() {
 	}
 }
 
-func (c *MavenCommand) doExecuteMaven() {
+func (c *MavenCommand) doExecuteMaven() int {
 	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	err := cmd.Run()
+	var exerr *exec.ExitError
+	if errors.As(err, &exerr) {
+		return exerr.ExitCode()
+	}
+	return 0
 }
 
 func (c *MavenCommand) debugConfig() {

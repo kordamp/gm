@@ -77,39 +77,34 @@ func discoverTool(config *Config, context Context, args *ParsedArgs) {
 func doFindGradle(context Context, args *ParsedArgs) {
 	gradle := FindGradle(context, args)
 	if gradle != nil {
-		gradle.Execute()
-		os.Exit(0)
+		os.Exit(gradle.Execute())
 	}
 }
 
 func doFindMaven(context Context, args *ParsedArgs) {
 	maven := FindMaven(context, args)
 	if maven != nil {
-		maven.Execute()
-		os.Exit(0)
+		os.Exit(maven.Execute())
 	}
 }
 
 func doFindJbang(context Context, args *ParsedArgs) {
 	jbang := FindJbang(context, args)
 	if jbang != nil {
-		jbang.Execute()
-		os.Exit(0)
+		os.Exit(jbang.Execute())
 	}
 }
 
 func doFindBach(context Context, args *ParsedArgs) {
 	bach := FindBach(context, args)
 	if bach != nil {
-		bach.Execute()
-		os.Exit(0)
+		os.Exit(bach.Execute())
 	}
 }
 
 func doFindAnt(context Context, args *ParsedArgs) {
 	ant := FindAnt(context, args)
 	if ant != nil {
-		ant.Execute()
-		os.Exit(0)
+		os.Exit(ant.Execute())
 	}
 }

@@ -35,9 +35,9 @@ type BachCommand struct {
 }
 
 // Execute executes the given command
-func (c BachCommand) Execute() {
+func (c BachCommand) Execute() int {
 	c.doConfigureBach()
-	c.doExecuteBach()
+	return c.doExecuteBach()
 }
 
 func (c *BachCommand) doConfigureBach() {
@@ -70,11 +70,16 @@ func (c *BachCommand) doConfigureBach() {
 	}
 }
 
-func (c *BachCommand) doExecuteBach() {
+func (c *BachCommand) doExecuteBach() int {
 	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	err := cmd.Run()
+	var exerr *exec.ExitError
+	if errors.As(err, &exerr) {
+		return exerr.ExitCode()
+	}
+	return 0
 }
 
 func (c *BachCommand) debugConfig() {

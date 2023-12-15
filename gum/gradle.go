@@ -41,9 +41,9 @@ type GradleCommand struct {
 }
 
 // Execute executes the given command
-func (c GradleCommand) Execute() {
+func (c GradleCommand) Execute() int {
 	c.doConfigureGradle()
-	c.doExecuteGradle()
+	return c.doExecuteGradle()
 }
 
 func (c *GradleCommand) doConfigureGradle() {
@@ -118,11 +118,16 @@ func (c *GradleCommand) doConfigureGradle() {
 	}
 }
 
-func (c *GradleCommand) doExecuteGradle() {
+func (c *GradleCommand) doExecuteGradle() int {
 	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	err := cmd.Run()
+	var exerr *exec.ExitError
+	if errors.As(err, &exerr) {
+		return exerr.ExitCode()
+	}
+	return 0
 }
 
 func (c *GradleCommand) debugConfig() {
