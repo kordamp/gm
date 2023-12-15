@@ -30,14 +30,6 @@ jobs:
         shell: bash
         run: |
           sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
-                
-      - name: Snapcraft Login
-        if: success() && startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_LOGIN }}
-        run: |
-          snapcraft login
 
       - name: Setup Chocolatey
         shell: bash
@@ -70,3 +62,4 @@ jobs:
           MASTODON_CLIENT_ID: ${{ secrets.MASTODON_CLIENT_ID }}
           MASTODON_CLIENT_SECRET: ${{ secrets.MASTODON_CLIENT_SECRET }}
           CHOCOLATEY_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_LOGIN }}
