@@ -92,7 +92,7 @@ snapcrafts:
 brews:
   - name: gum
     goarm: 6
-    tap:
+    repository:
       owner: kordamp
       name: homebrew-tap
     folder: Formula
