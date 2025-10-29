@@ -26,10 +26,10 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Set up Snapcraft
-        shell: bash
-        run: |
-          sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
+      #- name: Set up Snapcraft
+      #  shell: bash
+      #  run: |
+      #    sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
 
       - name: Get Dependencies
         shell: bash
