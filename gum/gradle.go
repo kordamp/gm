@@ -33,6 +33,7 @@ type GradleCommand struct {
 	args                 *ParsedArgs
 	explicitProjectDir   string
 	rootDir              string
+	projectDir           string
 	buildFile            string
 	explicitBuildFile    string
 	rootBuildFile        string
@@ -53,7 +54,6 @@ func (c *GradleCommand) doConfigureGradle() {
 
 	banner := make([]string, 0)
 	banner = append(banner, "Using gradle at '"+c.executable+"'")
-	nearest := c.args.HasGumFlag("gn")
 	debug := c.args.HasGumFlag("gd")
 	skipReplace := c.args.HasGumFlag("gr")
 
@@ -71,40 +71,26 @@ func (c *GradleCommand) doConfigureGradle() {
 	if len(c.explicitProjectDir) > 0 {
 		banner = append(banner, "to run project at '"+c.explicitProjectDir+"':")
 	} else {
-		var buildFileSet bool
+		var explicitSet bool
 		if len(c.explicitBuildFile) > 0 {
 			args = append(args, "-b")
 			args = append(args, c.explicitBuildFile)
 			banner = append(banner, "to run buildFile '"+c.explicitBuildFile+"':")
-			buildFileSet = true
-		} else if nearest && len(c.buildFile) > 0 {
-			args = append(args, "-b")
-			args = append(args, c.buildFile)
-			banner = append(banner, "to run buildFile '"+c.buildFile+"':")
-			buildFileSet = true
-		} else if len(c.rootBuildFile) > 0 {
-			args = append(args, "-b")
-			args = append(args, c.rootBuildFile)
-			banner = append(banner, "to run buildFile '"+c.rootBuildFile+"':")
-			buildFileSet = true
+			explicitSet = true
 		}
 
 		if len(c.explicitSettingsFile) > 0 {
-			if !buildFileSet {
-				banner = append(banner, "with settings at '"+c.explicitSettingsFile+"':")
-			}
-		} else if len(c.settingsFile) > 0 {
-			pwd, _ := filepath.Abs(c.context.GetWorkingDir())
-			settingsDir, _ := filepath.Abs(filepath.Dir(c.settingsFile))
+			args = append(args, "-c")
+			args = append(args, c.explicitSettingsFile)
+			banner = append(banner, "with settings at '"+c.explicitSettingsFile+"':")
+			explicitSet = true
+		}
 
-			if c.rootDir != settingsDir || c.rootDir != pwd {
-				args = append(args, "-c")
-				args = append(args, c.settingsFile)
-			}
-
-			if !buildFileSet {
-				banner = append(banner, "with settings at '"+c.settingsFile+"':")
-			}
+		if !explicitSet {
+			// assumes Gradle 9+
+			// use parent dir of c.settingsFile
+			c.projectDir = filepath.Dir(c.settingsFile)
+			banner = append(banner, "with settings at '"+c.settingsFile+"':")
 		}
 	}
 
@@ -122,12 +108,21 @@ func (c *GradleCommand) doExecuteGradle() int {
 	cmd := exec.Command(c.executable, c.args.Args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	var exerr *exec.ExitError
-	if errors.As(err, &exerr) {
-		return exerr.ExitCode()
+	currentDir, _ := filepath.Abs(c.context.GetWorkingDir())
+	if len(c.projectDir) > 0 {
+		os.Chdir(c.projectDir)
+		defer func() {
+			os.Chdir(currentDir)
+		}()
 	}
-	return 0
+	err := cmd.Run()
+	if err == nil {
+		return 0
+	}
+
+	var exerr *exec.ExitError
+	errors.As(err, &exerr)
+	return exerr.ExitCode()
 }
 
 func (c *GradleCommand) debugConfig() {
@@ -144,6 +139,9 @@ func (c *GradleCommand) debugGradle(otargs []string, oargs []string, rtargs []st
 		fmt.Println("pwd                  = ", c.context.GetWorkingDir())
 		fmt.Println("rootDir              = ", c.rootDir)
 		fmt.Println("rootBuildFile        = ", c.rootBuildFile)
+		if len(c.projectDir) > 0 {
+			fmt.Println("projectDir           = ", c.projectDir)
+		}
 		fmt.Println("buildFile            = ", c.buildFile)
 		fmt.Println("settingsFile         = ", c.settingsFile)
 		fmt.Println("explicitBuildFile    = ", c.explicitBuildFile)

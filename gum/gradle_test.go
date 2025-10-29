@@ -62,8 +62,10 @@ func TestGradleTaskSubstitutionAppendFlag(t *testing.T) {
 	}
 
 	cmd.doConfigureGradle()
-	if cmd.args.Args[0] != "-b" || cmd.args.Args[1] != filepath.Join(pwd, "build.gradle") {
-		t.Errorf("args: invalid build file")
+	for _, arg := range cmd.args.Args {
+		if arg == filepath.Join(pwd, "build.gradle") {
+			t.Errorf("args: explicit build file found in args")
+		}
 	}
 	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-2] != "build" {
 		t.Errorf("args: got verify, want build")
@@ -111,8 +113,10 @@ func TestGradleTaskSubstitutionPrependFlag(t *testing.T) {
 	}
 
 	cmd.doConfigureGradle()
-	if cmd.args.Args[0] != "-b" || cmd.args.Args[1] != filepath.Join(pwd, "build.gradle") {
-		t.Errorf("args: invalid build file")
+	for _, arg := range cmd.args.Args {
+		if arg == filepath.Join(pwd, "build.gradle") {
+			t.Errorf("args: explicit build file found in args")
+		}
 	}
 	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-1] != "build" {
 		t.Errorf("args: got verify, want build")
@@ -159,8 +163,10 @@ func TestGradleSingleWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureGradle()
-	if cmd.args.Args[0] != "-b" || cmd.args.Args[1] != filepath.Join(pwd, "build.gradle") {
-		t.Errorf("args: invalid build file")
+	for _, arg := range cmd.args.Args {
+		if arg == filepath.Join(pwd, "build.gradle") {
+			t.Errorf("args: explicit build file found in args")
+		}
 	}
 	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != "build" {
 		t.Errorf("args: got verify, want build")
