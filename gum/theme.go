@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// Copyright 2020-2023 Andres Almiray.
+// Copyright 2020-2025 Andres Almiray.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ var DarkTheme *ColoredTheme = &ColoredTheme{
 	boolean: color.S256(99, 0),
 	literal: color.S256(33, 0)}
 
-//LightTheme light colored theme
+// LightTheme light colored theme
 var LightTheme *ColoredTheme = &ColoredTheme{
 	name:    "light",
 	symbol:  color.S256(0, 255),
