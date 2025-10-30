@@ -1,37 +1,42 @@
-name: Release
+name: EarlyAccess
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version'
-        required: true
+  push:
+    branches: [ master ]
 
 jobs:
-  release:
-    name: Release
+  precheck:
+    if: github.repository == 'kordamp/gm' && startsWith(github.event.head_commit.message, 'Releasing version') != true
     runs-on: ubuntu-latest
+    outputs:
+      VERSION: ${{ steps.vars.outputs.VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cancel previous run
+        uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+        
+      - name: Version
+        id: vars
+        shell: bash
+        run: |
+          echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+  release:
+    needs: [ precheck ]
+    if: endsWith(${{ needs.precheck.outputs.VERSION }}, '-SNAPSHOT')
+    runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Cancel previous run
-        uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit version
-        run: |
-          echo ${{ github.event.inputs.version }} > VERSION
-          git add VERSION
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "GitHub Action"
-          git commit -a -m "Releasing version ${{ needs.precheck.outputs.VERSION }}"
-          git push origin main
-
-      - name: Setup Go
+      - name: Set up Go
         uses: actions/setup-go@v5
 
       - name: Assemble
@@ -39,7 +44,7 @@ jobs:
         with:
           arguments: assemble
         env:
-          JRELEASER_PROJECT_VERSION: ${{ github.event.inputs.version }}
+          JRELEASER_PROJECT_VERSION: ${{ needs.precheck.outputs.VERSION }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: JReleaser assemble output
@@ -57,15 +62,8 @@ jobs:
         with:
           arguments: release
         env:
-          JRELEASER_PROJECT_VERSION: ${{ github.event.inputs.version }}
+          JRELEASER_PROJECT_VERSION: ${{ needs.precheck.outputs.VERSION }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
-          JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
-          JRELEASER_BLUESKY_HOST: ${{ secrets.BLUESKY_HOST }}
-          JRELEASER_BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
-          JRELEASER_BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          JRELEASER_MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
 
       - name: JReleaser release output
         if: always()

@@ -168,13 +168,6 @@ $ brew install kordamp/tap/gum
 
 Or use the `upgrade` or `reinstall` commands if you have a previous installation of Gum in your system.
 
-=== Snapcraft
-
-[source]
-----
-$ sudo snap install --classic gum
-----
-
 == Scoop
 
 [source]

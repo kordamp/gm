@@ -1,0 +1,134 @@
+environment:
+  properties:
+    archiveDir: out/jreleaser/assemble/gm/archive
+    
+matrix:
+  rows:
+    - { goos: darwin,  goarch: arm64, skipTgz: true,  skipSnap: true,  platform: osx-aarch_64     }
+    - { goos: darwin,  goarch: amd64, skipTgz: true,  skipSnap: true,  platform: osx-x86_64       }
+    - { goos: linux,   goarch: arm64, skipTgz: false, skipSnap: true,  platform: linux-aarch_64   }
+    - { goos: linux,   goarch: amd64, skipTgz: false, skipSnap: false, platform: linux-x86_64     }
+    - { goos: windows, goarch: arm64, skipTgz: true,  skipSnap: true,  platform: windows-aarch_64 }
+    - { goos: windows, goarch: amd64, skipTgz: true,  skipSnap: true,  platform: windows-x86_64   }
+
+hooks:
+  script:
+    before:
+      - run: |
+          echo "building ${GOOS}-${GOARCH}"
+          make
+        applyDefaultMatrix: true
+        verbose: true
+        environment:
+          GOOS: '{{ matrix.goos }}'
+          GOARCH: '{{ matrix.goarch }}'
+          GM_VERSION: '{{ projectVersion }}'
+          GIT_COMMIT: '{{ commitFullHash }}'
+          BUILD_TIMESTAMP: '{{ timestamp }}'
+        filter:
+          includes: ['assemble']
+          
+project:
+  name: gm
+  description: Gum is a Gradle/Maven/Ant/Bach/JBang wrapper written in Go
+  longDescription: |
+    Gum is a Gradle/Maven/Ant/Bach/JBang wrapper written in Go, inspired in https://github.com/dougborg/gdub and https://github.com/srs/gw.
+    Gum automatically detects if the project is Gradle, Maven, Ant, Bach, or JBang based and runs the appropriate command. However 
+    in the case that Gum guesses wrong you can force a specific build tool to be used. Similarly as gdub, Gum lets you invoke either 
+    Gradle, Maven, or Ant from anywhere within the project structure, not just the root directory.
+    
+    **Usage**
+    
+    Gum supports the following flags
+    
+    * **-ga** force Ant execution
+    * **-gb** force Bach execution
+    * **-gc** displays current configuration and quits
+    * **-gd** displays debug information
+    * **-gg** force Gradle build
+    * **-gh** displays help information
+    * **-gj** force JBang execution
+    * **-gm** force Maven build
+    * **-gn** executes nearest build file
+    * **-gq** run gm in quiet mode
+    * **-gr** do not replace goals/tasks
+    * **-gv** displays version information
+    
+    Gum will execute the build based on the root build file unless **-gn** is specified, in which case the nearest build file
+    will be selected. If a specific build file is given (**-b**, **--build-file** for Gradle; **-f**, **--file** for Maven,
+    **-f**, **-file**, **-buildfile** for Ant) then that file will be used instead.
+  links:
+    homepage: https://github.com/kordamp/gm
+  authors:
+    - Andres Almiray
+  license: Apache-2.0
+  inceptionYear: 2020
+  stereotype: CLI
+  tags:
+    - tool
+    - wrapper
+    - java
+    - maven
+    - gradle
+    - ant
+
+checksum:
+  algorithms:
+    - SHA-256
+    - SHA-512
+
+signing:
+  active: ALWAYS
+  armored: true
+
+release:
+  github:
+    overwrite: true
+    branch: master
+    changelog:
+      formatted: ALWAYS
+      preset: conventional-commits
+      contributors:
+        format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
+        
+assemble:
+  archive:
+    gm:
+      active: ALWAYS
+      formats: [ ZIP, TGZ ]
+      applyDefaultMatrix: true
+      archiveName: '{{distributionName}}-{{projectVersion}}-{{ matrix.goos }}-{{ matrix.goarch }}'
+      fileSets:
+        - input: 'target/{{ matrix.goos }}-{{ matrix.goarch }}'
+          output: 'bin'
+          includes: [ 'gm{.exe,}' ]
+        - input: '.'
+          includes: [ 'LICENSE', 'README.adoc' ]
+        
+distributions:
+  gm:
+    executable:
+      windowsExtension: exe
+    brew:
+      active: ALWAYS
+      continueOnError: true
+      formulaName: gum
+      multiPlatform: true
+      repository:
+        active: RELEASE
+    chocolatey:
+      active: ALWAYS
+      continueOnError: true
+      remoteBuild: true
+      title: Gum
+      iconUrl: 'https://rawcdn.githack.com/foo/bar/efbdc760-395b-43f1-bf69-ba25c374d473/icon.png'
+      repository:
+        active: RELEASE
+
+announce:
+  bluesky:
+    active: RELEASE
+  mastodon:
+    active: RELEASE
+    host: https://mastodon.social
+
