@@ -4,12 +4,12 @@ environment:
     
 matrix:
   rows:
-    - { goos: darwin,  goarch: arm64, skipTgz: true,  skipSnap: true,  platform: osx-aarch_64     }
-    - { goos: darwin,  goarch: amd64, skipTgz: true,  skipSnap: true,  platform: osx-x86_64       }
-    - { goos: linux,   goarch: arm64, skipTgz: false, skipSnap: true,  platform: linux-aarch_64   }
-    - { goos: linux,   goarch: amd64, skipTgz: false, skipSnap: false, platform: linux-x86_64     }
-    - { goos: windows, goarch: arm64, skipTgz: true,  skipSnap: true,  platform: windows-aarch_64 }
-    - { goos: windows, goarch: amd64, skipTgz: true,  skipSnap: true,  platform: windows-x86_64   }
+    - { goos: darwin,  goarch: arm64, skipTgz: true,  skipZip: false, platform: osx-aarch_64     }
+    - { goos: darwin,  goarch: amd64, skipTgz: true,  skipZip: false, platform: osx-x86_64       }
+    - { goos: linux,   goarch: arm64, skipTgz: false, skipZip: true,  platform: linux-aarch_64   }
+    - { goos: linux,   goarch: amd64, skipTgz: false, skipZip: true,  platform: linux-x86_64     }
+    - { goos: windows, goarch: arm64, skipTgz: true,  skipZip: false, platform: windows-aarch_64 }
+    - { goos: windows, goarch: amd64, skipTgz: true,  skipZip: false, platform: windows-x86_64   }
 
 hooks:
   script:
