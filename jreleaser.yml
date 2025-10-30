@@ -1,7 +1,3 @@
-environment:
-  properties:
-    archiveDir: out/jreleaser/assemble/gm/archive
-    
 matrix:
   rows:
     - { goos: darwin,  goarch: arm64, skipTgz: true,  skipZip: false, platform: osx-aarch_64     }
