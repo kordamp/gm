@@ -41,7 +41,7 @@ hooks:
           includes: ['assemble']
           
 project:
-  name: gm
+  name: gum
   description: Gum is a Gradle/Maven/Ant/Bach/JBang wrapper written in Go
   longDescription: |
     Gum is a Gradle/Maven/Ant/Bach/JBang wrapper written in Go, inspired in https://github.com/dougborg/gdub and https://github.com/srs/gw.
