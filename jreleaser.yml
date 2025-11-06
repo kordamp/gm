@@ -16,12 +16,12 @@
 
 matrix:
   rows:
-    - { goos: darwin,  goarch: arm64, platform: osx-aarch_64     }
-    - { goos: darwin,  goarch: amd64, platform: osx-x86_64       }
-    - { goos: linux,   goarch: arm64, platform: linux-aarch_64   }
-    - { goos: linux,   goarch: amd64, platform: linux-x86_64     }
-    - { goos: windows, goarch: arm64, platform: windows-aarch_64 }
-    - { goos: windows, goarch: amd64, platform: windows-x86_64   }
+    - { goos: darwin,  goarch: arm64, skipScoop: false, platform: osx-aarch_64     }
+    - { goos: darwin,  goarch: amd64, skipScoop: false, platform: osx-x86_64       }
+    - { goos: linux,   goarch: arm64, skipScoop: false, platform: linux-aarch_64   }
+    - { goos: linux,   goarch: amd64, skipScoop: false, platform: linux-x86_64     }
+    - { goos: windows, goarch: arm64, skipScoop: true,  platform: windows-aarch_64 }
+    - { goos: windows, goarch: amd64, skipScoop: false, platform: windows-x86_64   }
 
 hooks:
   script:
@@ -126,6 +126,11 @@ distributions:
       continueOnError: true
       formulaName: gum
       multiPlatform: true
+      repository:
+        active: RELEASE
+    scoop:
+      active: ALWAYS
+      continueOnError: true
       repository:
         active: RELEASE
     chocolatey:
