@@ -141,6 +141,7 @@ distributions:
       iconUrl: 'https://rawcdn.githack.com/foo/bar/efbdc760-395b-43f1-bf69-ba25c374d473/icon.png'
       repository:
         active: RELEASE
+        name: chocolatey-gum
 
 announce:
   bluesky:
