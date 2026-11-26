@@ -59,10 +59,10 @@ func TestMavenGoalSubstitutionAppendFlag(t *testing.T) {
 	}
 
 	cmd.doConfigureMaven()
-	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "pom.xml") {
+	if cmd.args.Args[1] != "-f" || cmd.args.Args[2] != filepath.Join(pwd, "pom.xml") {
 		t.Errorf("args: invalid build file")
 	}
-	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-2] != "verify" {
+	if len(cmd.args.Args) != 4 && cmd.args.Args[len(cmd.args.Args)-2] != "verify" {
 		t.Errorf("args: got build, want verify")
 	}
 }
@@ -105,10 +105,10 @@ func TestMavenGoalSubstitutionPrependFlag(t *testing.T) {
 	}
 
 	cmd.doConfigureMaven()
-	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "pom.xml") {
+	if cmd.args.Args[1] != "-f" || cmd.args.Args[2] != filepath.Join(pwd, "pom.xml") {
 		t.Errorf("args: invalid build file")
 	}
-	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-1] != "verify" {
+	if len(cmd.args.Args) != 4 && cmd.args.Args[len(cmd.args.Args)-1] != "verify" {
 		t.Errorf("args: got build, want verify")
 	}
 }
@@ -151,10 +151,10 @@ func TestMavenSingleWithWrapper(t *testing.T) {
 	}
 
 	cmd.doConfigureMaven()
-	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "pom.xml") {
+	if cmd.args.Args[1] != "-f" || cmd.args.Args[2] != filepath.Join(pwd, "pom.xml") {
 		t.Errorf("args: invalid build file")
 	}
-	if len(cmd.args.Args) != 2 && cmd.args.Args[len(cmd.args.Args)-1] != "verify" {
+	if len(cmd.args.Args) != 3 && cmd.args.Args[len(cmd.args.Args)-1] != "verify" {
 		t.Errorf("args: got build, want verify")
 	}
 }
@@ -311,7 +311,7 @@ func TestMavenWithExplicitBuildFile(t *testing.T) {
 	}
 
 	cmd.doConfigureMaven()
-	if cmd.args.Args[0] != "-f" || cmd.args.Args[1] != filepath.Join(pwd, "explicit.xml") {
+	if cmd.args.Args[1] != "-f" || cmd.args.Args[2] != filepath.Join(pwd, "explicit.xml") {
 		t.Errorf("args: invalid build file")
 	}
 }

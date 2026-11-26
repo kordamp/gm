@@ -79,7 +79,7 @@ func (c *MavenCommand) doConfigureMaven() {
 	}
 
 	args = appendSafe(args, rtargs)
-	c.args.Args = appendSafe(args, rargs)
+	c.args.Args = maybeAddColorFlag(appendSafe(args, rargs))
 
 	c.debugMaven(otargs, oargs, rtargs, rargs)
 
@@ -352,4 +352,18 @@ func resolveMvndExec(context Context) string {
 		return "mvnd.cmd"
 	}
 	return "mvnd"
+}
+
+// Prepends `--color=always` to the args as needed
+func maybeAddColorFlag(args []string) []string {
+	for _, key := range args {
+		if strings.Index(key, "--color") == 0 {
+			return args
+		}
+	}
+
+	nargs := make([]string, 0)
+	nargs = append(nargs, "--color=always")
+	nargs = append(nargs, args...)
+	return nargs
 }
