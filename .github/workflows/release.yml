@@ -2,10 +2,11 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version'
-        required: true
+
+permissions:
+  actions: write
+  id-token: write
+  contents: write
 
 jobs:
   release:
@@ -22,14 +23,31 @@ jobs:
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Version
+        id: version
+        shell: bash
+        run: |
+          version=$(cat VERSION)
+          IFS="."
+          read -r major minor patch <<< "$version"
+          IFS="-"
+          read -r patch tag <<< "$patch"
+          echo "${major}.${minor}.${patch}${tag}"
+          release_version="${major}.${minor}.${patch}"
+          next_version="${major}.$((minor + 1)).0-SNAPSHOT"
+          {
+            echo "version=${version}"
+            echo "release_version=${release_version}"
+            echo "next_version=${next_version}"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Commit version
         run: |
-          echo ${{ github.event.inputs.version }} > VERSION
+          echo ${{ steps.version.outputs.release_version }} > VERSION
           git add VERSION
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Action"
-          git commit -a -m "Releasing version ${{ needs.precheck.outputs.VERSION }}"
-          git push origin master
+          git commit -a -m "Releasing version ${{ steps.version.outputs.release_version }}"
 
       - name: Setup Go
         uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
@@ -41,8 +59,12 @@ jobs:
         with:
           arguments: assemble
         env:
-          JRELEASER_PROJECT_VERSION: ${{ github.event.inputs.version }}
+          JRELEASER_PROJECT_VERSION: ${{ steps.version.outputs.release_version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push version
+        run: |
+          git push origin master
 
       - name: JReleaser assemble output
         if: always()
@@ -59,7 +81,7 @@ jobs:
         with:
           arguments: full-release
         env:
-          JRELEASER_PROJECT_VERSION: ${{ github.event.inputs.version }}
+          JRELEASER_PROJECT_VERSION: ${{ steps.version.outputs.release_version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
@@ -78,3 +100,13 @@ jobs:
           path: |
             out/jreleaser/trace.log
             out/jreleaser/output.properties
+
+      - name: Bump version
+        shell: bash
+        run: |
+          echo ${{ needs.precheck.outputs.next-version }} > VERSION
+          git add VERSION
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
+          git commit -a -m "Bump for next development cycle"
+          git push origin master
