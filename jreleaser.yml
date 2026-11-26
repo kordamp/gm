@@ -90,8 +90,9 @@ checksum:
     - SHA-512
 
 signing:
-  active: ALWAYS
-  armored: true
+  pgp:
+    active: ALWAYS
+    armored: true
 
 release:
   github:
@@ -149,4 +150,3 @@ announce:
   mastodon:
     active: RELEASE
     host: https://mastodon.social
-
