@@ -98,6 +98,8 @@ release:
   github:
     overwrite: true
     branch: master
+    issues:
+      enabled: true
     changelog:
       formatted: ALWAYS
       preset: conventional-commits
