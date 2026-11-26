@@ -12,10 +12,10 @@ jobs:
       VERSION: ${{ steps.vars.outputs.VERSION }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Cancel previous run
-        uses: styfle/cancel-workflow-action@0.12.1
+        uses: styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66 #v0.13.1
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
         
@@ -32,17 +32,17 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
         with:
-          go-version: '1.25.3'
+          go-version: '1.27.4'
 
       - name: Assemble
-        uses: jreleaser/release-action@v2
+        uses: jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5 # v2.5.0
         with:
           arguments: assemble
         env:
@@ -51,7 +51,7 @@ jobs:
 
       - name: JReleaser assemble output
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           retention-days: 1
           name: jreleaser-assemble
@@ -60,7 +60,7 @@ jobs:
             out/jreleaser/output.properties
 
       - name: Release
-        uses: jreleaser/release-action@v2
+        uses: jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5 # v2.5.0
         with:
           arguments: release
         env:
@@ -69,10 +69,14 @@ jobs:
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
           JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+          JRELEASER_BLUESKY_HOST: ${{ secrets.BLUESKY_HOST }}
+          JRELEASER_BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          JRELEASER_BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          JRELEASER_MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
 
       - name: JReleaser release output
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           retention-days: 1
           name: jreleaser-release
