@@ -35,6 +35,8 @@ jobs:
           echo "${major}.${minor}.${patch}${tag}"
           release_version="${major}.${minor}.${patch}"
           next_version="${major}.$((minor + 1)).0-SNAPSHOT"
+          echo "Release version: ${release_version}"
+          echo "Next version:    ${next_version}"
           {
             echo "version=${version}"
             echo "release_version=${release_version}"
@@ -104,7 +106,7 @@ jobs:
       - name: Bump version
         shell: bash
         run: |
-          echo ${{ needs.precheck.outputs.next-version }} > VERSION
+          echo ${{ steps.version.outputs.next-version }} > VERSION
           git add VERSION
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Action"
